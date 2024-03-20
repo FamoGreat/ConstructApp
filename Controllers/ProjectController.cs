@@ -70,19 +70,13 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
 
-            var project = dbContext.Projects.FirstOrDefault(p => p.Id == id);
-
+            var project = dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefault(p => p.Id == id);
+           
             if (project == null)
             {
                 return NotFound();
             }
 
-            return View(project);
-        }
-
-        public IActionResult FullDetails(int projectId)
-        {
-            var project = dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefault(p => p.Id == projectId);
             return View(project);
         }
 

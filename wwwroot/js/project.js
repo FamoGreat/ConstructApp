@@ -25,7 +25,6 @@ function loadDataTable() {
                     return `<div class="w-75 btn-group" role="group">
                             <a href="/Project/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">Edit</a>
                             <a href="/Project/Details?id=${data}" class="m-2 btn btn-sm btn-success">Details</a>
-                            <a href="/Project/FullDetails?id=${data} class="m-2 btn btn-sm btn-secondary>View Details</a>
                             <a onClick=Delete('/Project/Delete/${data}') class="m-2 btn btn-sm btn-danger">Delete</a>
                             </div>`;
                 },
