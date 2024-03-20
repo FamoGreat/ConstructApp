@@ -1,0 +1,50 @@
+﻿@model List<ProjectMaterial>
+
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<partial name="_Notification" />
+<div class="container mt-4">
+    <div class="row">
+        <!-- Column One - Add Project Button -->
+        <div class="col-sm-12 col-md-6 mb-2 mb-md-0">
+            <p>
+                <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectMaterial"><i class="ti-plus"></i> Add Material</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">List of Projects</h6>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="dataTable" class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Material Code</th>
+                            <th>Material Name</th>
+                            <th>Estimated Quantity</th>
+                            <th>Estimated Cost</th>
+                            <th>Unit of Measurement</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="~/js/projectMaterial.js"></script>
+
+}

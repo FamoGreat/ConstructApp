@@ -1,0 +1,17 @@
+﻿<!-- Project Detail Card -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.ProjectName</h5>
+        <p class="card-text">Location: @Model.Location</p>
+        <p class="card-text">Start Date: @Model.StartDate.ToShortDateString()</p>
+        <p class="card-text">End Date: @Model.EndDate.ToShortDateString()</p>
+        <p class="card-text">Created By: @Model.CreatedBy</p>
+        <p class="card-text">Created Date: @Model.CreatedDate.ToShortDateString()</p>
+        <p class="card-text">Total Budget: @Model.TotalBudget</p>
+
+        <!-- Add additional details or actions as needed -->
+
+        <a href="/ProjectMaterial/Create/@Model.Id" class="btn btn-primary">Add Materials</a>
+        <a href="@Url.Action("Index", "Project")" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

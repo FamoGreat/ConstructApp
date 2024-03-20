@@ -1,0 +1,49 @@
+﻿@model Project
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title text-center">Edit Project Information Form</h4>
+            <form method="post" class="forms-sample">
+                <input asp-for="@Model.Id" hidden />
+                <div class="form-group">
+                    <label asp-for="ProjectName" class="p-0"></label>
+                    <input asp-for="ProjectName" class="form-control" />
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Location" class="form-label"></label>
+                    <input asp-for="Location" type="text" class="form-control">
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StartDate" class="form-label"></label>
+                    <input asp-for="StartDate" class="form-control">
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndDate" class="form-label"></label>
+                    <input asp-for="EndDate" class="form-control">
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CreatedBy" class="form-label"></label>
+                    <input asp-for="CreatedBy" class="form-control">
+                    <span asp-validation-for="CreatedBy" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CreatedDate" class="form-label"></label>
+                    <input asp-for="CreatedDate" class="form-control">
+                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TotalBudget" class="form-label"></label>
+                    <input asp-for="TotalBudget" class="form-control">
+                    <span asp-validation-for="TotalBudget" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Project">Back To List</a>
+
+            </form>
+        </div>
+    </div>
+</div>
