@@ -2,6 +2,8 @@
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ConstructApp.Controllers
 {
@@ -70,7 +72,7 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
 
-            var project = dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefault(p => p.Id == id);
+            var project = dbContext.Projects.Include(p => p.ProjectMaterials).Include(pt => pt.ProjectTools).FirstOrDefault(p => p.Id == id);
            
             if (project == null)
             {
@@ -88,6 +90,52 @@ namespace ConstructApp.Controllers
 
             return Json(new { data = projects });
         }
+        [HttpGet]
+        public IActionResult GetMaterial(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return BadRequest(new { success = false, message = "ID parameter is missing." });
+            }
+
+            var project = dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefault(p => p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound(new { success = false, message = $"Project Material with ID {id} not found." });
+            }
+
+            var options = new JsonSerializerOptions 
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true
+            };
+            return Json(new { data = project.ProjectMaterials }, options);
+        }
+        [HttpGet]
+        public IActionResult GetTools(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return BadRequest(new { success = false, message = "ID parameter is missing." });
+            }
+
+            var project = dbContext.Projects.Include(p => p.ProjectTools).FirstOrDefault(p => p.Id == id);
+
+            if (project == null)
+            {
+                return NotFound(new { success = false, message = $"Project with ID {id} not found." });
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true
+            };
+            return Json(new { data = project.ProjectTools }, options);
+        }
+
+
         [HttpDelete]
         public IActionResult Delete(int? id)
         {
@@ -101,6 +149,7 @@ namespace ConstructApp.Controllers
             dbContext.SaveChanges();
             return Json(new { success = true, message = "Delete Successfully" });
         }
+
 
         #endregion
     }

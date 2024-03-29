@@ -11,6 +11,7 @@ namespace ConstructApp.Data
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectMaterial> ProjectMaterials { get; set; }
+        public DbSet<ProjectTool> ProjectTools { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
