@@ -192,7 +192,7 @@ namespace ConstructApp.Controllers
             {
                 dbContext.Remove(ProjectMaterialToBeDeleted);
                 dbContext.SaveChanges();
-                return Ok(new { success = true, message = "Delete Successful" });
+                return Ok(new { success = true, message = "Material Delete Successful" });
             }
             catch (Exception ex)
             {

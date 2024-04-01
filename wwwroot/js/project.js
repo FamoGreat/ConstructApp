@@ -14,7 +14,7 @@ function loadDataTable() {
         "columns": [
             { "data": 'projectName', "width": "10%" },
             { "data": 'location', "width": "10%" },
-            { "data": 'startDate', "width": "10%" },
+            { "data": 'startDate', "width": "10%",  },
             { "data": 'endDate', "width": "10%" },
             { "data": 'createdBy', "width": "10%" },
             { "data": 'createdDate', "width": "10%" },

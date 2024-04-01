@@ -21,26 +21,34 @@ namespace ConstructApp.Controllers
         }
         
         [HttpPost]
-        public IActionResult Create(ProjectTool ProjectTool)
+        public IActionResult Create(ProjectTool projectTool)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return View(ProjectTool);
+                    return View(projectTool);
                 }
 
-                ProjectTool.Id = 0;
-                dbContext.ProjectTools.Add(ProjectTool);
+                projectTool.Id = 0;
+                // Check if referenced Project exists
+                var existingProject = dbContext.Projects.FirstOrDefault(p => p.Id == projectTool.ProjectId);
+
+                if (existingProject == null)
+                {
+                    TempData["error"] = "The selected Project does not exist.";
+                    return View(projectTool);
+                }
+                dbContext.ProjectTools.Add(projectTool);
                 dbContext.SaveChanges();
-                TempData["success"] = "Project Material created successfully";
+                TempData["success"] = "Project Tool created successfully";
 
                 return RedirectToAction("Index", "Project");
             }
             catch (Exception ex)
             {
                 TempData["error"] = $"An error occurred while creating the Project Material: {ex.Message}";
-                return View(ProjectTool);
+                return View(projectTool);
             }
         }
 
@@ -70,13 +78,18 @@ namespace ConstructApp.Controllers
 
             try
             {
+                // Avoid potential duplicate tracking
+                dbContext.Entry(updatedProjectTool).State = EntityState.Detached;
+
                 var existingTool = dbContext.ProjectTools.FirstOrDefault(p => p.Id == updatedProjectTool.Id);
                 if (existingTool == null)
                 {
                     return NotFound();
                 }
 
-                dbContext.Update(updatedProjectTool);
+                // Update properties
+                existingTool.ToolName = updatedProjectTool.ToolName; // Update other relevant properties
+                dbContext.Update(existingTool);
                 dbContext.SaveChanges();
                 TempData["success"] = "Project Tool updated successfully";
 
@@ -88,6 +101,7 @@ namespace ConstructApp.Controllers
                 return View(updatedProjectTool);
             }
         }
+
 
         #region API CALLS
 
@@ -109,7 +123,7 @@ namespace ConstructApp.Controllers
             {
                 dbContext.Remove(ProjectToolToBeDeleted);
                 dbContext.SaveChanges();
-                return Ok(new { success = true, message = "Delete Successful" });
+                return Ok(new { success = true, message = "Tool Delete Successful" });
             }
             catch (Exception ex)
             {

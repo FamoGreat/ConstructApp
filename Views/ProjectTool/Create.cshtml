@@ -1,15 +1,16 @@
 ﻿@model ProjectTool
+<partial name="_Notification" />
 
 <div class="col-12 grid-margin stretch-card mb-5">
     <div class="card">
         <div class="card-body">
             <h4 class="card-title text-center">Project Material Information Form</h4>
             <form asp-action="Create" method="post" class="forms-sample">
-                <input asp-for="Id" hidden />
+                <input asp-for="ProjectId" hidden />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label asp-for="ToolName" class="form-label">Material Name</label>
+                            <label asp-for="ToolName" class="form-label"></label>
                             <input asp-for="ToolName" type="text" class="form-control">
                             <span asp-validation-for="ToolName" class="text-danger"></span>
                         </div>
@@ -17,7 +18,7 @@
 
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Add Material</button>
+                <button type="submit" class="btn btn-primary">Add Tool</button>
             </form>
         </div>
     </div>

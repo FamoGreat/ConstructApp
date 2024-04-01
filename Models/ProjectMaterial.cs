@@ -18,12 +18,12 @@ namespace ConstructApp.Models
 
         [Required]
         [DisplayName("Estimated Quantity")]
-        public double EstimatedQuantity { get; set; }
+        public int EstimatedQuantity { get; set; }
 
         [Required]
         [DisplayName("Estimated Cost")]
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal EstimatedCost { get; set; }
+        public double EstimatedCost { get; set; }
 
         [Required]
         [DisplayName("Unit Of Measurement")]
