@@ -29,7 +29,6 @@ namespace ConstructApp.Models
         public decimal TotalBudget { get; set; }
         public virtual List<ProjectMaterial> ProjectMaterials { get; set; } = new List<ProjectMaterial>();
         public virtual List<ProjectTool> ProjectTools { get; set; } = new List<ProjectTool>();
-
     }
 }
 

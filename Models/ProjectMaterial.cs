@@ -6,24 +6,24 @@ namespace ConstructApp.Models
 {
     public class ProjectMaterial
     {
-
         public int Id { get; set; }
 
         [Required]
         [DisplayName("Material Code")]
         public string? MaterialCode { get; set; }
+
         [Required]
         [DisplayName("Material Name")]
         public string? MaterialName { get; set; }
 
         [Required]
         [DisplayName("Estimated Quantity")]
-        public int EstimatedQuantity { get; set; }
+        public decimal EstimatedQuantity { get; set; }
 
         [Required]
         [DisplayName("Estimated Cost")]
         [Column(TypeName = "decimal(18, 2)")]
-        public double EstimatedCost { get; set; }
+        public decimal EstimatedCost { get; set; }
 
         [Required]
         [DisplayName("Unit Of Measurement")]

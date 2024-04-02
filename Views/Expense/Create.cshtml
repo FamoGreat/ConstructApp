@@ -1,5 +1,7 @@
 ﻿@model ExpenseVM
 
+<partial name="_Notification" />
+
 <div class="col-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
@@ -7,22 +9,17 @@
             <form method="post" class="forms-sample">
                 <div class="form-group">
                     <label asp-for="Expense.ProjectId" class="form-label"></label>
-                    <select id="projectSelect" asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control">
+                    <select asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select">
                         <option disabled selected>-- Select Project --</option>
                     </select>
                     <span asp-validation-for="Expense.ProjectId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Expense.ExpenseTypeId" class="form-label"></label>
-                    <select id="expenseTypeSelect" asp-for="Expense.ExpenseTypeId" asp-items="@Model.ExpenseTypeList" class="form-control">
+                    <select asp-for="Expense.ExpenseTypeId" asp-items="@Model.ExpenseTypeList" class="form-control form-select">
                         <option disabled selected>-- Select Expense Type --</option>
                     </select>
                     <span asp-validation-for="Expense.ExpenseTypeId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Expense.ExpenseAmount" class="form-label">Expense Amount:</label>
-                    <input id="materialCostInput" asp-for="Expense.ExpenseAmount" type="number" class="form-control" readonly>
-                    <span asp-validation-for="Expense.ExpenseAmount" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Expense.CreatedBy" class="form-label"></label>
@@ -37,30 +34,8 @@
                 <!-- Additional fields as needed -->
 
                 <button type="submit" class="btn btn-primary">Save</button>
-                @*<a href="/Project/Details/@Model.ProjectId" class="btn btn-secondary">Cancel</a>*@
+                <a href="@Url.Action("Index", "Expense")" class="btn btn-secondary">Back to List</a>
             </form>
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('#projectSelect, #expenseTypeSelect').change(function () {
-            var projectId = $('#projectSelect').val();
-            var expenseType = $('#expenseTypeSelect').val();
-
-            $.ajax({
-                url: '/Expense/CalculateMaterialCost',
-                method: 'GET',
-                data: { projectId: projectId, expenseType: expenseType },
-                success: function (response) {
-                    $('#materialCostInput').val(response.totalMaterialCost);
-                },
-                error: function () {
-                    alert('Failed to retrieve material cost.');
-                }
-            });
-        });
-    });
-</script>
