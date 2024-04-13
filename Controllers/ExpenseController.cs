@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.ObjectModelRemoting;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Linq;
 
 namespace ConstructApp.Controllers
@@ -122,6 +123,50 @@ namespace ConstructApp.Controllers
             return materialExpenseTypeIds.Contains(expenseTypeId);
         }
 
+        public IActionResult Edit(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest(new { success = false, message = "ID parameter is missing." });
+                }
+
+                var expense = dbContext.Expenses.FirstOrDefault(e => e.Id == id);
+                if (expense == null)
+                {
+                    return NotFound(new { success = false, message = $"Expense with ID {id} not found." });
+                }
+
+                var projectList = dbContext.Projects.Select(u => new SelectListItem
+                {
+                    Text = u.ProjectName,
+                    Value = u.Id.ToString(),
+                    Selected = u.Id == expense.ProjectId
+                }).ToList();
+
+                var expenseTypeList = dbContext.ExpenseTypes.Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString(),
+                    Selected = u.Id == expense.ExpenseTypeId
+                }).ToList();
+
+                var expenseVM = new ExpenseVM
+                {
+                    Expense = expense,
+                    ProjectList = projectList,
+                    ExpenseTypeList = expenseTypeList
+                };
+
+                return View(expenseVM);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
         #region API CALLS
         [HttpGet]
         public IActionResult GetExpenses(int projectId)
@@ -135,6 +180,7 @@ namespace ConstructApp.Controllers
                         e.Id,
                         ExpenseType = e.ExpenseType.Name,
                         Amount = e.ExpenseAmount,
+                        CreatedBy = e.CreatedBy,
                         Date = e.CreatedDate.ToString("MM/dd/yyyy")
                     })
                     .ToList();

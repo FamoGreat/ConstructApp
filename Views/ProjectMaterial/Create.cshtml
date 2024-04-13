@@ -41,12 +41,19 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label asp-for="MaterialUOM" class="form-label">Unit of Measurement</label>
-                            <input asp-for="MaterialUOM" class="form-control">
+                            <label asp-for="MaterialUOM" class="form-label"></label>
+                            <select asp-for="MaterialUOM" class="form-control form-select">
+                                <option value="">-- Select Unit of Measurement --</option>
+                                @foreach (var uom in Enum.GetValues(typeof(UnitOfMeasurement)))
+                                {
+                                    <option value="@uom">@uom</option>
+                                }
+                            </select>
                             <span asp-validation-for="MaterialUOM" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
+
                 <button type="submit" class="btn btn-primary">Add Material</button>
             </form>
         </div>

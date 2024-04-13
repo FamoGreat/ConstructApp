@@ -1,4 +1,5 @@
-﻿using ConstructApp.Data;
+﻿using ConstructApp.Constants;
+using ConstructApp.Data;
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +68,13 @@ namespace ConstructApp.Controllers
                 if (isUnique)
                 {
                     ModelState.AddModelError("MaterialCode", "Material code must be unique.");
+                    return View(ProjectMaterial);
+                }
+
+                // Validate MaterialUOM enum value
+                if (!Enum.IsDefined(typeof(UnitOfMeasurement), ProjectMaterial.MaterialUOM))
+                {
+                    ModelState.AddModelError("MaterialUOM", "Invalid unit of measurement.");
                     return View(ProjectMaterial);
                 }
 
@@ -170,8 +178,20 @@ namespace ConstructApp.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<ProjectMaterial> ProjectMaterials = dbContext.ProjectMaterials.ToList();
-            return Ok(new { data = ProjectMaterials });
+            List<ProjectMaterial> projectMaterials = dbContext.ProjectMaterials.ToList();
+
+            // Convert enum values to string representations
+            var data = projectMaterials.Select(pm => new {
+                pm.Id,
+                pm.MaterialCode,
+                pm.MaterialName,
+                pm.EstimatedQuantity,
+                pm.EstimatedCost,
+                MaterialUOM = Enum.GetName(typeof(UnitOfMeasurement), pm.MaterialUOM),
+                pm.ProjectId
+            });
+
+            return Ok(new { data });
         }
 
         [HttpDelete]

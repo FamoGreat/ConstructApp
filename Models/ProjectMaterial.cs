@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using ConstructApp.Constants;
 
 namespace ConstructApp.Models
 {
@@ -27,8 +28,13 @@ namespace ConstructApp.Models
 
         [Required]
         [DisplayName("Unit Of Measurement")]
-        public string? MaterialUOM { get; set; } // UnitOfMeasurement
-
+        public UnitOfMeasurement MaterialUOM { get; set; }
+        [NotMapped]
+        public string? MaterialUOMString
+        {
+            get => Enum.GetName(typeof(UnitOfMeasurement), MaterialUOM);
+            set => MaterialUOM = (UnitOfMeasurement)Enum.Parse(typeof(UnitOfMeasurement), value);
+        }
         // Navigation property to link to the Project entity
         public int ProjectId { get; set; }
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using ConstructApp.Constants;
 
 namespace ConstructApp.Controllers
 {
@@ -103,6 +104,10 @@ namespace ConstructApp.Controllers
             if (project == null)
             {
                 return NotFound(new { success = false, message = $"Project Material with ID {id} not found." });
+            }
+            foreach (var material in project.ProjectMaterials)
+            {
+                material.MaterialUOMString = Enum.GetName(typeof(UnitOfMeasurement), material.MaterialUOM);
             }
 
             var options = new JsonSerializerOptions 

@@ -1,0 +1,43 @@
+﻿@model ExpenseVM
+
+<partial name="_Notification" />
+
+<div class="col-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title text-center">Edit Expense</h4>
+            <form method="post" class="forms-sample">
+                <input asp-for="Expense.Id" type="hidden" />
+                <div class="form-group">
+                    <label asp-for="Expense.ProjectId" class="form-label"></label>
+                    <select asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select" disabled>
+                        <option disabled selected>-- Select Project --</option>
+                    </select>
+                    <span asp-validation-for="Expense.ProjectId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Expense.ExpenseTypeId" class="form-label"></label>
+                    <select asp-for="Expense.ExpenseTypeId" asp-items="@Model.ProjectList" class="form-control form-select">
+                        <option disabled selected>-- Select Expense Type --</option>
+                    </select>
+                    <span asp-validation-for="Expense.ExpenseTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Expense.ExpenseAmount" class="form-label">Amount</label>
+                    <input asp-for="Expense.ExpenseAmount" type="text" class="form-control" readonly> 
+                    <span asp-validation-for="Expense.ExpenseAmount" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Expense.CreatedBy" class="form-label">Created By</label>
+                    <input asp-for="Expense.CreatedBy" type="text" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Expense.CreatedDate" class="form-label">Created Date</label>
+                    <input asp-for="Expense.CreatedDate" type="date" class="form-control" >
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="@Url.Action("Index", "Expense")" class="btn btn-secondary">Back to List</a>
+            </form>
+        </div>
+    </div>
+</div>

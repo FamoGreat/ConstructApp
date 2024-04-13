@@ -1,0 +1,30 @@
+﻿namespace ConstructApp.Constants
+{
+    public enum UnitOfMeasurement
+    {
+        Feet,
+        Inches,
+        Meters,
+        Centimeters,
+        Millimeters,
+        SquareFeet,
+        SquareMeters,
+        SquareYards,
+        CubicFeet,
+        CubicMeters,
+        Gallons,
+        Liters,
+        CubicYards,
+        Pounds,
+        Kilograms,
+        Tons,
+        Pieces,
+        Units,
+        Bundles,
+        Sheets,
+        Hours,
+        Minutes,
+        Seconds,
+        Joules
+    }
+}
