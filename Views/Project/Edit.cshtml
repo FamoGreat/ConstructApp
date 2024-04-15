@@ -40,10 +40,10 @@
                     <input asp-for="TotalBudget" class="form-control">
                     <span asp-validation-for="TotalBudget" class="text-danger"></span>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
 
-                <a href="/ProjectMaterial/Create/@Model.Id" class="btn btn-primary">Add Materials</a>
-                <a href="/ProjectTool/Create/@Model.Id" class="btn btn-primary">Add Tools</a>
+                <a href="/ProjectMaterial/Create/@Model.Id" class="btn btn-primary"><i class="fas fa-plus"></i>  Materials</a>
+                <a href="/ProjectTool/Create/@Model.Id" class="btn btn-primary"><i class="fas fa-plus"></i>  Tools</a>
 
             </form>
         </div>

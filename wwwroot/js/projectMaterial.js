@@ -23,10 +23,24 @@ function loadDataTable() {
                 "data": 'id',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                            <a href="/ProjectMaterial?id=${data}" class="m-2 btn btn-sm btn-primary">Edit</a>
-                            <a href="/ProjectMaterial/Details?id=${data}" class="m-2 btn btn-sm btn-success">Details</a>
-                            <a onClick=Delete('/ProjectMaterial/Delete/${data}') class="m-2 btn btn-sm btn-danger">Delete</a>
-                            </div>`;
+                <a href="/ProjectMaterial?id=${data}" class="m-2 btn btn-sm btn-primary">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-edit mr-1"></i>
+                        <span>Edit</span>
+                    </div>
+                </a>
+                <a href="/ProjectMaterial/Details?id=${data}" class="m-2 btn btn-sm btn-success">
+                    <div style="display: flex; align-items: center;">
+                        <span>Details</span>
+                    </div>
+                </a>
+                <a onClick=Delete('/ProjectMaterial/Delete/${data}') class="m-2 btn btn-sm btn-danger">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-trash-alt mr-1"></i>
+                        <span>Delete</span>
+                    </div>
+                </a>
+            </div>`;
                 },
                 "width": "20%"
             }]

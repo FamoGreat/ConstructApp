@@ -5,6 +5,7 @@ namespace ConstructApp.Models.ViewModels
 {
     public class ExpenseVM
     {
+    
         public Expense Expense { get; set; }
 
         [ValidateNever]

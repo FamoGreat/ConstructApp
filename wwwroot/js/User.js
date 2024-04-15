@@ -21,10 +21,21 @@ function loadDataTable() {
                 "data": 'id',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                            <a href="/User/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">Edit</a>
-                            <a onClick=Delete('/User/Delete/${data}') class="m-2 btn btn-sm btn-danger">Delete</a>
-                            </div>`;
+                <a href="/User/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-edit mr-1"></i>
+                        <span>Edit</span>
+                    </div>
+                </a>
+                <a onClick=Delete('/User/Delete/${data}') class="m-2 btn btn-sm btn-danger">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-trash-alt mr-1"></i>
+                        <span>Delete</span>
+                    </div>
+                </a>
+            </div>`;
                 },
+
                 "width": "20%"
             }]
     });

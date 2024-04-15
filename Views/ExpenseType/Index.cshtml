@@ -12,7 +12,7 @@
         <!-- Column One - Add Project Button -->
         <div class="col-sm-12 col-md-6 mb-2 mb-md-0">
             <p>
-                <a class="btn btn-primary" asp-action="Create" asp-controller="ExpenseType"><i class="ti-plus"></i> Add Expense Type</a>
+                <a class="btn btn-primary" asp-action="Create" asp-controller="ExpenseType"><i class="fas fa-plus"></i> Add Expense Type</a>
             </p>
         </div>
 
@@ -57,6 +57,8 @@
                     "type": "GET",
                     "datatype": "json"
                 },
+                "paging": false, // Remove paging
+                "searching": false, // Remove search
                 "columns": [
                     {
                         "data": null, "width": "5%", "orderable": false, "searchable": false,
@@ -69,9 +71,19 @@
                         "data": 'id',
                         "render": function (data) {
                             return `<div class="w-75 btn-group" role="group">
-                                            <a href="/ExpenseType/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">Edit</a>
-                                            <a onClick=Delete('/ExpenseType/Delete/${data}') class="m-2 btn btn-sm btn-danger">Delete</a>
-                                    </div>`;
+                        <a href="/ExpenseType/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-edit mr-1"></i>
+                                <span>Edit</span>
+                            </div>
+                        </a>
+                        <a onclick="Delete('/ExpenseType/Delete/${data}')" class="m-2 btn btn-sm btn-danger">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-trash-alt mr-1"></i>
+                                <span>Delete</span>
+                            </div>
+                        </a>
+                    </div>`;
                         },
                         "width": "20%"
                     }]
@@ -100,8 +112,6 @@
             });
         }
 
-
-
     </script>
-
 }
+

@@ -8,26 +8,23 @@ namespace ConstructApp.Models
     public class Expense
     {
         public int Id { get; set; }
-        [Required]
         [DisplayName("Project")]
         public int ProjectId { get; set; }
         [ForeignKey("ProjectId")]
         [ValidateNever]
         public Project? Project { get; set; }
-        [Required]
         [DisplayName("Expense Type")]
         public int ExpenseTypeId { get; set; }
         [ForeignKey("ExpenseTypeId")]
         [ValidateNever]
         public ExpenseType? ExpenseType { get; set; }
-        [Required]
         [DisplayName("Expense Amount")]
         public decimal ExpenseAmount { get; set; }
-        [Required]
         [DisplayName("Created By")]
-        public string? CreatedBy { get; set; }
         [Required]
+        public string? CreatedBy { get; set; }
         [DisplayName("Created Date")]
+        [Required]
         public DateTime CreatedDate { get; set; }
 
     }

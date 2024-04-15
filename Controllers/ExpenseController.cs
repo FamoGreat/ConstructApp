@@ -34,7 +34,7 @@ namespace ConstructApp.Controllers
             return View(expenseVM);
 
         }
-      
+
         public IActionResult Create()
         {
             ExpenseVM expenseVM = new()
@@ -52,9 +52,9 @@ namespace ConstructApp.Controllers
                 Expense = new Expense()
             };
 
-
             return View(expenseVM);
         }
+
         [HttpPost]
         public IActionResult Create(ExpenseVM expenseVM)
         {
@@ -62,27 +62,47 @@ namespace ConstructApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    if (isMaterialExpense(expenseVM.Expense.ExpenseTypeId))
-                    {
-                        CalculateExpenseAmount(expenseVM);
-                    }
-                    dbContext.Expenses.Add(expenseVM.Expense);
+                    
+                        if (TryValidateModel(expenseVM.Expense))
+                        {
+                            if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
+                            {
+                                CalculateExpenseAmount(expenseVM);
+                            }
+
+                            dbContext.Expenses.Add(expenseVM.Expense);
+                        }
+                        else
+                        {
+                            TempData["error"] = "Validation failed for one or more expenses. Please check the provided data.";
+                            PopulateDropdowns(expenseVM);
+                            return BadRequest(TempData["error"]);
+                        }
+                    
+
                     dbContext.SaveChanges();
-                    TempData["success"] = "Expense added successfully";
+                    TempData["success"] = "Expenses added successfully";
                     return RedirectToAction("Index", "Expense");
+                }
+                else
+                {
+                    TempData["error"] = "Validation failed. Please check the provided data.";
+
+                    return View(expenseVM);
                 }
             }
             catch (DbUpdateException ex)
             {
                 TempData["error"] = "An error occurred while saving to the database: " + ex.Message;
+                return View(expenseVM);
             }
             catch (Exception ex)
             {
                 TempData["error"] = "An unexpected error occurred: " + ex.Message;
+                return View(expenseVM);
             }
 
-            PopulateDropdowns(expenseVM);
-            return View(expenseVM);
+
         }
 
         private void CalculateExpenseAmount(ExpenseVM expenseVM)
@@ -96,6 +116,7 @@ namespace ConstructApp.Controllers
                 decimal totalMaterialCost = projectMaterials.Sum(pm => pm.EstimatedCost * pm.EstimatedQuantity);
                 expenseVM.Expense.ExpenseAmount = totalMaterialCost;
             }
+            // You can add additional logic for calculating expense amount for non-material expenses here if needed
         }
 
         private void PopulateDropdowns(ExpenseVM expenseVM)
@@ -113,15 +134,17 @@ namespace ConstructApp.Controllers
             });
         }
 
-        private bool isMaterialExpense(int expenseTypeId)
+        private bool IsMaterialExpense(int expenseTypeId)
         {
             var materialExpenseTypeIds = dbContext.ExpenseTypes
-                 .Where(e => e.Name == "Material") 
+                 .Where(e => e.Name == "Material")
                  .Select(e => e.Id)
                  .ToList();
 
             return materialExpenseTypeIds.Contains(expenseTypeId);
         }
+
+
 
         public IActionResult Edit(int id)
         {

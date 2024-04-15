@@ -19,8 +19,8 @@ function loadDataTable() {
                 "data": 'id',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                            <a href="/Material/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">Edit</a>
-                            <a onClick=Delete('/Material/Delete/${data}') class="m-2 btn btn-sm btn-danger">Delete</a>
+                            <a href="/Material/Edit?id=${data}" class="m-2 btn btn-sm btn-primary"><i class="fas fa-edit"></i> Edit</a>
+                            <a onClick=Delete('/Material/Delete/${data}') class="m-2 btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Delete</a>
                             </div>`;
                 },
                 "width": "20%"

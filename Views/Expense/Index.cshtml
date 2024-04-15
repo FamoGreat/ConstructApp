@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-sm-12 col-md-6 mb-2 mb-md-0">
             <p>
-                <a class="btn btn-primary" asp-action="Create" asp-controller="Expense"><i class="ti-plus"></i> Add Expense</a>
+                <a class="btn btn-primary" asp-action="Create" asp-controller="Expense"><i class="fas fa-plus"></i> Add Expense</a>
             </p>
         </div>
     </div>
@@ -67,7 +67,22 @@
                                     item.amount,
                                     item.createdBy,
                                     item.date,
-                                    '<a href="/Expense/Edit?id=' + item.id + '" class="m-2 btn btn-sm btn-primary"> Edit </a> <a href="#" onclick="confirmDelete(' + item.id + ')" class="m-2 btn btn-sm btn-danger"> Delete </a>'
+                                    `<div class="d-flex">
+                                        <a href="/Expense/Edit?id=${item.id}" class="m-2 btn btn-sm btn-primary">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-edit mr-1"></i>
+                                                <span>Edit</span>
+                                            </div>
+                                        </a>
+                                        <a onclick="confirmDelete(${item.id})" class="m-2 btn btn-sm btn-danger">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-trash-alt mr-1"></i>
+                                                <span>Delete</span>
+                                            </div>
+                                        </a>
+                                    </div>`
+
+                                           
                                 ]).draw();
                             });
                         },
