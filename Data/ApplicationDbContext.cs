@@ -17,18 +17,18 @@ namespace ConstructApp.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Approval> Approvals { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Specify ON DELETE NO ACTION for the ProjectId foreign key constraint in the Approvals table
-            modelBuilder.Entity<Approval>()
-                        .HasOne(a => a.Project)
-                        .WithMany()
-                        .HasForeignKey(a => a.ProjectId)
-                        .OnDelete(DeleteBehavior.NoAction);
-
+            // Define one-to-one relationship between Expense and Approval
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Approval)
+                .WithOne(a => a.Expense)
+                .HasForeignKey<Approval>(a => a.ExpenseId);
         }
 
     }

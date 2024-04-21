@@ -1,5 +1,112 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<Expense>
 @{
+    ViewData["Title"] = "Index";
+}
+
+<partial name="_Notification" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Expenses</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Expense Type</th>
+                        <th>Amount</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var expense in Model)
+                        {
+                            <tr>
+                                <td>@(expense.Project?.ProjectName ?? "N/A")</td>
+                                <td>@(expense.ExpenseType?.Name ?? "N/A")</td>
+                                <td>@expense.ExpenseAmount</td>
+                                <td>@expense.CreatedBy</td>
+                                <td>@expense.CreatedDate.ToString("MM/dd/yyyy")</td>
+                                <td>@expense.ApprovalStatus</td>
+                                <td>
+                                    @if (expense.ApprovalStatus == ApprovalStatus.Pending)
+                                    {
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#approveModal_@expense.Id">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">No data available in table</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for approving expense -->
+@foreach (var expense in Model)
+{
+    <div class="modal fade" id="approveModal_@expense.Id" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel">Approve Expense</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form asp-action="Approve" asp-controller="Approval" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="expenseId" value="@expense.Id" />
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="approvedStatus" name="approvalStatus" value="Approved">
+                            <label class="form-check-label" for="approvedStatus">
+                                Approved
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="rejectedStatus" name="approvalStatus" value="Rejected">
+                            <label class="form-check-label" for="rejectedStatus">
+                                Rejected
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Approve</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('input[name="approvalStatus"]').change(function () {
+                var rejectedChecked = $('#rejectedStatus').is(':checked');
+                $('#description').prop('required', rejectedChecked);
+            });
+        });
+    </script>
 }

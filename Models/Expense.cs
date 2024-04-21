@@ -15,6 +15,7 @@ namespace ConstructApp.Models
         public Project? Project { get; set; }
         [DisplayName("Expense Type")]
         public int ExpenseTypeId { get; set; }
+
         [ForeignKey("ExpenseTypeId")]
         [ValidateNever]
         public ExpenseType? ExpenseType { get; set; }
@@ -26,6 +27,19 @@ namespace ConstructApp.Models
         [DisplayName("Created Date")]
         [Required]
         public DateTime CreatedDate { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
+        public virtual Approval? Approval { get; set; }
 
+
+
+
+
+    }
+
+    public enum ApprovalStatus
+    {
+        Pending,
+        Approved,
+        Rejected
     }
 }

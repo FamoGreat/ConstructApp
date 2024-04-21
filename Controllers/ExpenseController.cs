@@ -1,6 +1,8 @@
-﻿using ConstructApp.Data;
+﻿using ConstructApp.Constants;
+using ConstructApp.Data;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
+using ConstructApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.ObjectModelRemoting;
@@ -14,9 +16,12 @@ namespace ConstructApp.Controllers
     public class ExpenseController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public ExpenseController(ApplicationDbContext _dbContext)
+        private readonly INotificationService _notificationService;
+
+        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification)
         {
             dbContext = _dbContext;
+            this._notificationService = _notification;
         }
         public IActionResult Index()
         {
@@ -81,6 +86,7 @@ namespace ConstructApp.Controllers
                     
 
                     dbContext.SaveChanges();
+                    _notificationService.SendNotification(expenseVM.Expense.Id);
                     TempData["success"] = "Expenses added successfully";
                     return RedirectToAction("Index", "Expense");
                 }
@@ -204,7 +210,8 @@ namespace ConstructApp.Controllers
                         ExpenseType = e.ExpenseType.Name,
                         Amount = e.ExpenseAmount,
                         CreatedBy = e.CreatedBy,
-                        Date = e.CreatedDate.ToString("MM/dd/yyyy")
+                        Date = e.CreatedDate.ToString("MM/dd/yyyy"),
+                        ApprovalStatus = e.ApprovalStatus.ToString()
                     })
                     .ToList();
 
@@ -237,6 +244,21 @@ namespace ConstructApp.Controllers
                 return Json(new { success = false, message = "An error occurred while deleting the expense: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        public IActionResult GetPendingExpensesCount()
+        {
+            try
+            {
+                var pendingExpensesCount = dbContext.Expenses.Count(e => e.ApprovalStatus == ApprovalStatus.Pending);
+                return Json(new { count = pendingExpensesCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Failed to fetch count of pending expenses: " + ex.Message);
+            }
+        }
+
 
         #endregion
 

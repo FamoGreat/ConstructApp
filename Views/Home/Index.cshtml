@@ -81,7 +81,7 @@
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                             Pending Requests
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                        <div id="pending-expenses-count" class="h5 mb-0 font-weight-bold text-gray-800">0</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-comments fa-2x text-gray-300"></i>
@@ -90,4 +90,28 @@
             </div>
         </div>
     </div>
-</div>
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Function to fetch count of pending expenses
+            function fetchPendingExpensesCount() {
+                $.ajax({
+                    url: '/Expense/GetPendingExpensesCount',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#pending-expenses-count').text(data.count);
+                    },
+                    error: function (error) {
+                        console.log('Error fetching count of pending expenses:', error);
+                    }
+                });
+            }
+
+            fetchPendingExpensesCount();
+        });
+
+    </script>
+}
