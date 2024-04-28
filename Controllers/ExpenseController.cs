@@ -13,6 +13,7 @@ using System.Linq;
 
 namespace ConstructApp.Controllers
 {
+
     public class ExpenseController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -21,7 +22,7 @@ namespace ConstructApp.Controllers
         public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification)
         {
             dbContext = _dbContext;
-            this._notificationService = _notification;
+            _notificationService = _notification;
         }
         public IActionResult Index()
         {
@@ -67,23 +68,23 @@ namespace ConstructApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    
-                        if (TryValidateModel(expenseVM.Expense))
-                        {
-                            if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
-                            {
-                                CalculateExpenseAmount(expenseVM);
-                            }
 
-                            dbContext.Expenses.Add(expenseVM.Expense);
-                        }
-                        else
+                    if (TryValidateModel(expenseVM.Expense))
+                    {
+                        if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
                         {
-                            TempData["error"] = "Validation failed for one or more expenses. Please check the provided data.";
-                            PopulateDropdowns(expenseVM);
-                            return BadRequest(TempData["error"]);
+                            CalculateExpenseAmount(expenseVM);
                         }
-                    
+
+                        dbContext.Expenses.Add(expenseVM.Expense);
+                    }
+                    else
+                    {
+                        TempData["error"] = "Validation failed for one or more expenses. Please check the provided data.";
+                        PopulateDropdowns(expenseVM);
+                        return BadRequest(TempData["error"]);
+                    }
+
 
                     dbContext.SaveChanges();
                     _notificationService.SendNotification(expenseVM.Expense.Id);
@@ -209,7 +210,7 @@ namespace ConstructApp.Controllers
                         e.Id,
                         ExpenseType = e.ExpenseType.Name,
                         Amount = e.ExpenseAmount,
-                        CreatedBy = e.CreatedBy,
+                        e.CreatedBy,
                         Date = e.CreatedDate.ToString("MM/dd/yyyy"),
                         ApprovalStatus = e.ApprovalStatus.ToString()
                     })

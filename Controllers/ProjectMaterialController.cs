@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
+
     public class ProjectMaterialController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -21,7 +22,7 @@ namespace ConstructApp.Controllers
         public IActionResult Create(int id)
         {
 
-            var projectMaterail = new ProjectMaterial {ProjectId = id };
+            var projectMaterail = new ProjectMaterial { ProjectId = id };
             return View(projectMaterail);
         }
         [HttpPost]
@@ -136,7 +137,7 @@ namespace ConstructApp.Controllers
                         return View(updatedProjectMaterial);
                     }
                 }
-                
+
                 // Update other properties
                 existingMaterial.MaterialName = updatedProjectMaterial.MaterialName;
                 existingMaterial.EstimatedQuantity = updatedProjectMaterial.EstimatedQuantity;
@@ -181,7 +182,8 @@ namespace ConstructApp.Controllers
             List<ProjectMaterial> projectMaterials = dbContext.ProjectMaterials.ToList();
 
             // Convert enum values to string representations
-            var data = projectMaterials.Select(pm => new {
+            var data = projectMaterials.Select(pm => new
+            {
                 pm.Id,
                 pm.MaterialCode,
                 pm.MaterialName,
@@ -217,7 +219,7 @@ namespace ConstructApp.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return StatusCode(500, new { success = false, message =$"An error occurred while deleting the project material: {ex.Message}" });
+                return StatusCode(500, new { success = false, message = $"An error occurred while deleting the project material: {ex.Message}" });
             }
         }
 
@@ -225,6 +227,6 @@ namespace ConstructApp.Controllers
 
     }
 
-   
+
 }
 

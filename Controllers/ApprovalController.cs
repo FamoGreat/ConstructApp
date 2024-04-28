@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
+
     public class ApprovalController : Controller
     {
         private readonly ApplicationDbContext dbContext;

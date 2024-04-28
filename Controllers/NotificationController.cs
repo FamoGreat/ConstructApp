@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
+
     public class NotificationController : Controller, INotificationService
     {
         private readonly ApplicationDbContext dbContext;
@@ -15,7 +16,7 @@ namespace ConstructApp.Controllers
         }
 
 
-      
+
         public void SendNotification(int expenseId)
         {
             var expense = dbContext.Expenses.FirstOrDefault(e => e.Id == expenseId);
@@ -42,16 +43,16 @@ namespace ConstructApp.Controllers
         {
             // Fetch unread notifications from the database
             var notifications = dbContext.Notifications
-                .Include(n => n.ApplicationUser) 
+                .Include(n => n.ApplicationUser)
                 .Where(n => !n.IsRead)
-                .OrderByDescending(n => n.Timestamp) 
+                .OrderByDescending(n => n.Timestamp)
                 .ToList();
 
             var formattedNotifications = notifications.Select(n => new
             {
-                Message = n.Message,
+                n.Message,
                 Timestamp = n.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
-                ImageUrl = n.ApplicationUser?.ProfileImage 
+                ImageUrl = n.ApplicationUser?.ProfileImage
             });
 
             return Json(formattedNotifications);

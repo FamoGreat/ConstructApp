@@ -7,10 +7,10 @@ namespace ConstructApp.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
-        public string? Name { get; set; }
-        public string? ProfileImage { get; set; }
-        public string? Signature { get; set; }
-        [NotMapped]
-        public string? Role { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public byte[]? ProfileImage { get; set; }
+        public byte[]? Signature { get; set; }
+       
     }
 }

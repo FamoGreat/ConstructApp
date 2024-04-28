@@ -28,24 +28,21 @@ namespace ConstructApp.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -105,40 +102,20 @@ namespace ConstructApp.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
-
-            [DisplayName("Role")]
-            public string Role { get; set; }
-            [ValidateNever]
-            public IEnumerable<SelectListItem> RoleList {  get; set; }
             [Required]
-            public string Name { get; set; }
-            public string PhoneNumber { get; set; }
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+            [Required]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
 
-            public string ProfileImage { get; set; }
-            public string Signature { get; set; }
+            public byte[] Signature { get; set; }
         }
 
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!_roleManager.RoleExistsAsync(Roles.Role_Admin).GetAwaiter().GetResult())
-            {
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Admin)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Technician)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Project_Manager)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Director)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Cashier)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(Roles.Role_Finance_Manager)).GetAwaiter().GetResult();
-            }
-
-            Input = new() 
-            {
-                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem 
-                {
-                   Text = i,
-                   Value = i
-                })
-            };
+            
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -153,21 +130,18 @@ namespace ConstructApp.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                user.Name = Input.Name;
-                user.PhoneNumber = Input.PhoneNumber;
-                user.ProfileImage = Input.ProfileImage;
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
                 user.Signature = Input.Signature;
+
+                var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    if (!String.IsNullOrEmpty(Input.Role))
-                    {
-                        await _userManager.AddToRoleAsync(user, Input.Role);
-                    }
                     var userId = await _userManager.GetUserIdAsync(user);
+                    //await _userManager.AddToRoleAsync(user, Roles.Technician.ToString());
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -214,13 +188,13 @@ namespace ConstructApp.Areas.Identity.Pages.Account
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }

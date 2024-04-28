@@ -8,12 +8,13 @@ using ConstructApp.Constants;
 
 namespace ConstructApp.Controllers
 {
+
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext dbContext;
         public ProjectController(ApplicationDbContext dbContextContext)
         {
-            dbContext = dbContextContext;   
+            dbContext = dbContextContext;
         }
         public IActionResult Index()
         {
@@ -74,7 +75,7 @@ namespace ConstructApp.Controllers
             }
 
             var project = dbContext.Projects.Include(p => p.ProjectMaterials).Include(pt => pt.ProjectTools).FirstOrDefault(p => p.Id == id);
-           
+
             if (project == null)
             {
                 return NotFound();
@@ -110,7 +111,7 @@ namespace ConstructApp.Controllers
                 material.MaterialUOMString = Enum.GetName(typeof(UnitOfMeasurement), material.MaterialUOM);
             }
 
-            var options = new JsonSerializerOptions 
+            var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 WriteIndented = true

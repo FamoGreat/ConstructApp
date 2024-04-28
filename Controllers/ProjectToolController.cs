@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
+
     public class ProjectToolController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -19,7 +20,7 @@ namespace ConstructApp.Controllers
             var projectTool = new ProjectTool { ProjectId = id };
             return View(projectTool);
         }
-        
+
         [HttpPost]
         public IActionResult Create(ProjectTool projectTool)
         {

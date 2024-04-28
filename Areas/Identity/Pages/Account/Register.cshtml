@@ -4,9 +4,7 @@
     ViewData["Title"] = "Register";
 }
 
-@if (User.IsInRole("Admin"))
-{
-    <div class="col-12 grid-margin stretch-card">
+ <div class="col-12 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title text-center"><strong>Create an Account</strong></h4>
@@ -14,16 +12,14 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                     <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
-                            <label asp-for="Input.Name" class="form-label"></label>
-                            <input asp-for="Input.Name" class="form-control">
-                            <span asp-validation-for="Input.Name" class="text-danger"></span>
+                            <label asp-for="Input.FirstName" class="form-label"></label>
+                            <input asp-for="Input.FirstName" class="form-control">
+                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                         </div>
                         <div class="col-sm-6">
-                            <label asp-for="Input.Role" class="form-label"></label>
-                            <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-control form-select">
-                                <option disabled selected>-- Select Role --</option>
-                            </select>
-                            <span asp-validation-for="Input.Role" class="text-danger"></span>
+                            <label asp-for="Input.LastName" class="form-label"></label>
+                            <input asp-for="Input.LastName" class="form-control">
+                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -32,10 +28,12 @@
                             <input asp-for="Input.Email" class="form-control">
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
+
+                    <!-- Signature Input Field -->
                         <div class="col-sm-6">
-                            <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                            <input asp-for="Input.PhoneNumber" class="form-control">
-                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        <label asp-for="Input.Signature">Signature (Image)</label>
+                        <input asp-for ="Input.Signature" type="file" id="signature" name="signature" accept="image/*" class="form-control">
+                            <!-- Add any necessary validation for the signature input field -->
                         </div>
                     </div>
 
@@ -60,16 +58,23 @@
             </div>
         </div>
     </div>
-    <div class="container">
-    </div>
-}
-else
+  
+
+@* else
 {
     <div class="alert alert-danger" role="alert">
         <h4 class="alert-heading">Access Denied!</h4>
         <p class="mb-0">Sorry, you are not authorized to access this page. Please contact your administrator for assistance.</p>
     </div>
-}
+} *@
+
+@* <div class="col-sm-6">
+    <label asp-for="Input.Role" class="form-label"></label>
+    <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-control form-select">
+        <option disabled selected>-- Select Role --</option>
+    </select>
+    <span asp-validation-for="Input.Role" class="text-danger"></span>
+</div> *@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

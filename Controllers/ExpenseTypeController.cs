@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ConstructApp.Controllers
 {
+
     public class ExpenseTypeController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -50,7 +51,7 @@ namespace ConstructApp.Controllers
                     return NotFound();
                 }
 
-                var expenseType = dbContext.ExpenseTypes.FirstOrDefault(e => e.Id == id);   
+                var expenseType = dbContext.ExpenseTypes.FirstOrDefault(e => e.Id == id);
                 if (expenseType == null)
                 {
                     return NotFound();

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -29,6 +29,7 @@ namespace ConstructApp.Data
                 .HasOne(e => e.Approval)
                 .WithOne(a => a.Expense)
                 .HasForeignKey<Approval>(a => a.ExpenseId);
+
         }
 
     }
