@@ -139,7 +139,7 @@ namespace ConstructApp.Areas.Identity.Pages.Account.Manage
                 await _userManager.UpdateAsync(user);
             }
 
-         
+
             // Update user information
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)

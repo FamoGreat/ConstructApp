@@ -1,16 +1,19 @@
 ﻿using ConstructApp.Constants;
 using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Security.Claims;
+
 
 namespace ConstructApp.Seeds
 {
-    public class DefaultUsers
+
+    public static class DefaultUsers
     {
-        public static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext dbContext)
+        public static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            //Seed Default User
             var defaultUser = new ApplicationUser
             {
                 UserName = "ismailu@gmail.com",
@@ -33,9 +36,25 @@ namespace ConstructApp.Seeds
                     await userManager.AddToRoleAsync(defaultUser, Roles.Cashier.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.FinanceManager.ToString());
                 }
+                await roleManager.SeedClaimsForSuperAdmin();
             }
         }
-
- 
+        private async static Task SeedClaimsForSuperAdmin(this RoleManager<IdentityRole> roleManager)
+        {
+            var adminRole = await roleManager.FindByNameAsync("Admin");
+            await roleManager.AddPermissionClaim(adminRole, "UserPermissions");
+        }
+        public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)
+        {
+            var allClaims = await roleManager.GetClaimsAsync(role);
+            var allPermissions = Constants.Permissions.GeneratePermissionsForModule(module);
+            foreach (var permission in allPermissions)
+            {
+                if (!allClaims.Any(a => a.Type == "Permission" && a.Value == permission))
+                {
+                    await roleManager.AddClaimAsync(role, new Claim("Permission", permission));
+                }
+            }
+        }
     }
 }

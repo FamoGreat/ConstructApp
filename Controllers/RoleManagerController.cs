@@ -25,5 +25,29 @@ namespace ConstructApp.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> EditRole(string roleId, string roleName)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role != null && !string.IsNullOrEmpty(roleName))
+            {
+                role.Name = roleName.Trim();
+                await _roleManager.UpdateAsync(role);
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteRole(string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role != null)
+            {
+                await _roleManager.DeleteAsync(role);
+            }
+            return RedirectToAction("Index");
+        }
+
     }
 }

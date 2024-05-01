@@ -1,137 +1,65 @@
 ﻿using ConstructApp.Data;
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
-
     public class ExpenseTypeController : Controller
     {
         private readonly ApplicationDbContext dbContext;
+
         public ExpenseTypeController(ApplicationDbContext _dbContext)
         {
             dbContext = _dbContext;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            List<ExpenseType> expenseTypeList = dbContext.ExpenseTypes.ToList();
+            List<ExpenseType> expenseTypeList = await dbContext.ExpenseTypes.ToListAsync();
             return View(expenseTypeList);
         }
-        public IActionResult Create()
-        {
-            return View();
-        }
+
         [HttpPost]
-        public IActionResult Create(ExpenseType expenseType)
+        public async Task<IActionResult> CreateExpenseType(string expenseTypeName)
         {
-            try
+            if (!string.IsNullOrEmpty(expenseTypeName))
             {
-                if (ModelState.IsValid)
-                {
-                    dbContext.ExpenseTypes.Add(expenseType);
-                    dbContext.SaveChanges();
-                    TempData["success"] = "Expense type added successfully";
+                ExpenseType newExpenseType = new ExpenseType { Name = expenseTypeName };
+                dbContext.ExpenseTypes.Add(newExpenseType);
+                TempData["success"] = "Expense Type created successfully";
 
-                    return RedirectToAction("Index", "ExpenseType");
-                }
-                return View();
+                await dbContext.SaveChangesAsync();
             }
-            catch (Exception ex)
-            {
-                TempData["error"] = $"An error occurred while adding the expense type: {ex.Message}";
-                return View();
-            }
-        }
-        public IActionResult Edit(int? id)
-        {
-            try
-            {
-                if (id == null || id == 0)
-                {
-                    return NotFound();
-                }
-
-                var expenseType = dbContext.ExpenseTypes.FirstOrDefault(e => e.Id == id);
-                if (expenseType == null)
-                {
-                    return NotFound();
-                }
-                return View(expenseType);
-            }
-            catch (Exception ex)
-            {
-                TempData["error"] = $"An error occurred while retrieving the expense type: {ex.Message}";
-                return RedirectToAction("Index", "ExpenseType");
-            }
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public IActionResult Edit(ExpenseType expenseType)
+        public async Task<IActionResult> EditExpenseType(int expenseTypeId, string expenseType)
         {
-            try
+            ExpenseType existingExpenseType = await dbContext.ExpenseTypes.FindAsync(expenseTypeId);
+            if (existingExpenseType != null)
             {
-                if (ModelState.IsValid)
-                {
-                    dbContext.Update(expenseType);
-                    dbContext.SaveChanges();
-                    TempData["success"] = "Expense Type updated successfully";
+                existingExpenseType.Name = expenseType;
+                TempData["success"] = "Expense Type Updated successfully";
 
-                    return RedirectToAction("Index", "ExpenseType");
-                }
-                return View(expenseType);
+                await dbContext.SaveChangesAsync();
             }
-            catch (Exception ex)
-            {
-                TempData["error"] = $"An error occurred while updating the expense type: {ex.Message}";
-                return View(expenseType);
-            }
+            return RedirectToAction("Index");
         }
 
-
-
-
-        #region API CALLS
-
-        [HttpGet]
-        public IActionResult GetAll()
+        [HttpPost]
+        public async Task<IActionResult> DeleteExpenseType(int expenseTypeId)
         {
-            try
+            ExpenseType expenseTypeToDelete = await dbContext.ExpenseTypes.FindAsync(expenseTypeId);
+            if (expenseTypeToDelete != null)
             {
-                List<ExpenseType> expenseTypes = dbContext.ExpenseTypes.ToList();
-                return Json(new { success = true, data = expenseTypes });
+                dbContext.ExpenseTypes.Remove(expenseTypeToDelete);
+                TempData["success"] = "Expense TypeDeleted successfully";
+
+                await dbContext.SaveChangesAsync();
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"An error occurred while retrieving expense types: {ex.Message}" });
-            }
+            return RedirectToAction("Index");
         }
-
-        [HttpDelete]
-        public IActionResult Delete(int? id)
-        {
-            try
-            {
-                if (id == null)
-                {
-                    return Json(new { success = false, message = "Invalid expense type ID" });
-                }
-
-                var expenseTypeToBeDeleted = dbContext.ExpenseTypes.FirstOrDefault(e => e.Id == id);
-                if (expenseTypeToBeDeleted == null)
-                {
-                    return Json(new { success = false, message = "Expense type not found" });
-                }
-
-                dbContext.Remove(expenseTypeToBeDeleted);
-                dbContext.SaveChanges();
-                return Json(new { success = true, message = "Expense type deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"An error occurred while deleting the expense type: {ex.Message}" });
-            }
-        }
-        #endregion
-
     }
 }

@@ -9,5 +9,5 @@
         Cashier,
         FinanceManager
     }
-   
+
 }

@@ -1,5 +1,4 @@
-﻿@model List<Microsoft.AspNetCore.Identity.IdentityRole>
-
+﻿@model List<IdentityRole>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -8,9 +7,9 @@
     <div class="card-body">
         <form method="post" asp-action="AddRole" asp-controller="RoleManager" class="mb-3">
             <div class="input-group">
-                <input name="roleName" class="form-control mr-2" style="width: 75%;">
+                <input name="roleName" class="form-control mr-2" style="width: 75%;" placeholder="Enter Role Name">
                 <span class="input-group-btn">
-                    <button class="btn btn-primary">Add New Role</button>
+                    <button type="submit" class="btn btn-primary">Add New Role</button>
                 </span>
             </div>
         </form>
@@ -20,6 +19,7 @@
                     <tr>
                         <th>#</th>
                         <th>Role Name</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,10 +28,96 @@
                         <tr>
                             <td>@(Model.IndexOf(role) + 1)</td>
                             <td>@role.Name</td>
+                            <td>
+                                <div class="d-flex align-items-center" aria-label="Role Actions">
+                                    <div class="mr-2">
+                                        <a href="@Url.Action("Index", "Permission", new { roleId = role.Id })" class="btn btn-info">
+                                            <i class="fas fa-wrench"></i> Manage Permissions
+                                        </a>
+                                    </div>
+                                    <div class="mr-2">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editRoleModal_@role.Id">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                    </div>
+                              
+                                    <div>
+                                        <form method="post" asp-action="DeleteRole" asp-controller="RoleManager"
+                                              data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
+                                              data-confirm-type="warning">
+                                            <input type="hidden" name="roleId" value="@role.Id" />
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     }
+
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@foreach (var role in Model)
+{
+    <!-- Edit Role Modal -->
+    <div class="modal fade" id="editRoleModal_@role.Id" tabindex="-1" role="dialog" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editRoleModalLabel">Edit Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form asp-action="EditRole" asp-controller="RoleManager" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="roleId" value="@role.Id" />
+                        <div class="form-group">
+                            <label for="editRoleName_@role.Id">Role Name</label>
+                            <input id="editRoleName_@role.Id" name="roleName" class="form-control" value="@role.Name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const forms = document.querySelectorAll("[data-confirm-title]");
+            forms.forEach(form => {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    const title = form.getAttribute("data-confirm-title");
+                    const text = form.getAttribute("data-confirm-text") || "";
+                    const type = form.getAttribute("data-confirm-type") || "info";
+
+                    Swal.fire({
+                        title: title,
+                        text: text,
+                        icon: type,
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

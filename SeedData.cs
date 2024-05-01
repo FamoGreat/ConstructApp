@@ -2,13 +2,12 @@
 using ConstructApp.Models;
 using ConstructApp.Seeds;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp
 {
     public static class SeedData
     {
-        public async static Task<WebApplication> Seed(this WebApplication app) 
+        public async static Task<WebApplication> Seed(this WebApplication app)
         {
             using (var scope = app.Services.CreateScope())
             {
@@ -22,7 +21,8 @@ namespace ConstructApp
                     // Seed Roles 
                     await DefaultRoles.SeedRolesAsync(userManager, roleManager);
                     // Seed Default User
-                    await DefaultUsers.SeedAdminAsync(userManager, roleManager, dbContext);
+                    //await DefaultUsers.SeedTechnicianUserAsync(userManager, roleManager, dbContext);
+                    await DefaultUsers.SeedAdminAsync(userManager, roleManager);
                 }
                 catch (Exception ex)
                 {
