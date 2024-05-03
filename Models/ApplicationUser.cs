@@ -11,6 +11,9 @@ namespace ConstructApp.Models
         public string? LastName { get; set; }
         public byte[]? ProfileImage { get; set; }
         public byte[]? Signature { get; set; }
-       
+        public bool IsApproved { get; set; }
+        public bool CanApproved { get; set; }
+        public bool CanRequestForSomeone { get; set; }
+
     }
 }

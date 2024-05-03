@@ -16,11 +16,11 @@ namespace ConstructApp.Seeds
         {
             var defaultUser = new ApplicationUser
             {
-                UserName = "ismailu@gmail.com",
-                Email = "ismail@gmail.com",
-                FirstName = "Ismail",
-                LastName = "Batil",
-                EmailConfirmed = false,
+                UserName = "aidanconstruction123@gmail.com",
+                Email = "aidanconstruction123@gmail.com",
+                FirstName = "Aidan",
+                LastName = "Construction",
+                EmailConfirmed = true,
                 PhoneNumberConfirmed = false
             };
             if (userManager.Users.All(u => u.Id != defaultUser.Id))

@@ -9,6 +9,7 @@ using ConstructApp.Models;
 using ConstructApp;
 using Microsoft.AspNetCore.Authorization;
 using ConstructApp.Permissions;
+using ConstructApp.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddRazorPages();
 
 
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddTransient<IMailService, MailService>(); 
 builder.Services.AddScoped<INotificationService, NotificationController>();
 
 

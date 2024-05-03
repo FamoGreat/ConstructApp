@@ -112,8 +112,10 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" asp-action="Index" asp-controller="UserRoles">Users</a>
                         <a class="collapse-item" asp-action="Index" asp-controller="RoleManager">Roles</a>
-                        <a class="collapse-item" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>              
-                    </div>
+                        <a class="collapse-item" asp-action="Register" asp-controller="UserRoles">Register</a>
+
+@*                         <a class="collapse-item" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>              
+ *@                    </div>
                 </div>
             </li>
             <!-- Nav Item - Account Collapse Menu -->
@@ -266,28 +268,31 @@
 
                             <div class="topbar-divider d-none d-sm-block"></div>
 
-                        @if (SignInManager.IsSignedIn(User))
+                        @if (SignInManager != null && SignInManager.IsSignedIn(User))
                         {
                             var user = await UserManager.GetUserAsync(User);
 
-                            <li class="nav-item dropdown no-arrow">
-                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@user.UserName</span>
-                                    @if (user.ProfileImage != null)
-                                    {
-                                        <img class="img-profile rounded-circle" src="data:image/*;base64,@(Convert.ToBase64String(user.ProfileImage))">
-                                    }
-                                    else
-                                    {
-                                        <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
-                                    }
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                        <button id="logout" type="submit" class="dropdown-item">Logout</button>
-                                    </form>
-                                </div>
-                            </li>
+                            @if (user != null)
+                            {
+                                <li class="nav-item dropdown no-arrow">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">@user.UserName</span>
+                                        @if (user.ProfileImage != null)
+                                        {
+                                            <img class="img-profile rounded-circle" src="data:image/*;base64,@(Convert.ToBase64String(user.ProfileImage))">
+                                        }
+                                        else
+                                        {
+                                            <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
+                                        }
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                            <button id="logout" type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
                         }
 
               
