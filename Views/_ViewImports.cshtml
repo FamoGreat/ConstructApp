@@ -3,7 +3,9 @@
 @using ConstructApp.Models.ViewModels
 @using ConstructApp.Constants
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization;
 
+@inject IAuthorizationService AuthorizationService
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 

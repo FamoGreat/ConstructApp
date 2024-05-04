@@ -3,6 +3,7 @@ using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using ConstructApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class UserRolesController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

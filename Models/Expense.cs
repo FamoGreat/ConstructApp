@@ -9,10 +9,8 @@ namespace ConstructApp.Models
     {
         public int Id { get; set; }
         [DisplayName("Project")]
-        public int ProjectId { get; set; }
-        [ForeignKey("ProjectId")]
-        [ValidateNever]
-        public Project? Project { get; set; }
+        public string ApproverId { get; set; }
+        public virtual ApplicationUser Approver { get; set; }
         [DisplayName("Expense Type")]
         public int ExpenseTypeId { get; set; }
 

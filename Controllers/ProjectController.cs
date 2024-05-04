@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using ConstructApp.Constants;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConstructApp.Controllers
 {
@@ -12,18 +13,34 @@ namespace ConstructApp.Controllers
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public ProjectController(ApplicationDbContext dbContextContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager)
         {
-            dbContext = dbContextContext;
+            dbContext = _dbContext;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
             List<Project> projectList = dbContext.Projects.ToList();
             return View(projectList);
         }
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var fullName = $"{user.FirstName} {user.LastName}";
+
+                var project = new Project
+                {
+                    CreatedBy = fullName
+                };
+                return View(project);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
         [HttpPost]
         public IActionResult Create(Project project)
@@ -38,7 +55,7 @@ namespace ConstructApp.Controllers
             }
             return View();
         }
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || id == 0)
             {
@@ -49,6 +66,13 @@ namespace ConstructApp.Controllers
             if (project == null)
             {
                 return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var fullName = $"{user.FirstName} {user.LastName}";
+                project.CreatedBy = fullName;
             }
             return View(project);
         }

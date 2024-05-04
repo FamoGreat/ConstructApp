@@ -3,6 +3,7 @@ using ConstructApp.Data;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using ConstructApp.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.ObjectModelRemoting;
@@ -18,11 +19,14 @@ namespace ConstructApp.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly INotificationService _notificationService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification)
+
+        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager)
         {
             dbContext = _dbContext;
             _notificationService = _notification;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
@@ -41,8 +45,14 @@ namespace ConstructApp.Controllers
 
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             ExpenseVM expenseVM = new()
             {
                 ProjectList = dbContext.Projects.Select(u => new SelectListItem
@@ -55,7 +65,10 @@ namespace ConstructApp.Controllers
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                Expense = new Expense()
+                Expense = new Expense
+                {
+                    CreatedBy = $"{user.FirstName} {user.LastName}"
+                }
             };
 
             return View(expenseVM);
@@ -153,7 +166,7 @@ namespace ConstructApp.Controllers
 
 
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             try
             {
@@ -166,6 +179,13 @@ namespace ConstructApp.Controllers
                 if (expense == null)
                 {
                     return NotFound(new { success = false, message = $"Expense with ID {id} not found." });
+                }
+
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
                 }
 
                 var projectList = dbContext.Projects.Select(u => new SelectListItem
@@ -197,6 +217,8 @@ namespace ConstructApp.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetExpenses(int projectId)

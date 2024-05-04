@@ -75,7 +75,22 @@ namespace ConstructApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        public IActionResult ApprovedRequest()
+        { 
+            var approved = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Approved)
+                .Include(e => e.Project)
+                .Include(e => e.ExpenseType)
+                .ToList();
+            return View(approved);
+        }
+        public IActionResult RejectedRequest()
+        {
+            var rejected = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Rejected)
+                .Include(e => e.Project)
+                .Include(e => e.ExpenseType)
+                .ToList();
+            return View(rejected);
+        }
 
     }
 

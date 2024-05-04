@@ -59,8 +59,10 @@
 
 
             <!-- Nav Item - project Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+             @if (AuthorizationService.AuthorizeAsync(User, Permissions.ProjectPermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                    aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
                     <span>Project Management</span>
@@ -71,10 +73,12 @@
                     </div>
                 </div>
             </li>
-
+            }
             <!-- Nav Item - expense Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+             @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpensePermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                    aria-expanded="true" aria-controls="collapseUtilities">
                     <i class="fas fa-fw fa-wrench"></i>
                     <span>Expense Management</span>
@@ -87,9 +91,12 @@
                     </div>
                 </div>
             </li>
+            }
             <!-- Nav Item - Approval Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval"
+             @if (AuthorizationService.AuthorizeAsync(User, Permissions.ApprovalPermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval"
                    aria-expanded="true" aria-controls="collapseApproval">
                     <i class="fas fa-fw fa-check-circle"></i>
                     <span>Approval Management</span>
@@ -100,10 +107,12 @@
                     </div>
                 </div>
             </li>
-
+            }
             <!-- Nav Item - User Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
+            @if (AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
                    aria-expanded="true" aria-controls="collapseUser">
                     <i class="fas fa-fw fa-user"></i>
                     <span>User Management</span>
@@ -118,6 +127,7 @@
  *@                    </div>
                 </div>
             </li>
+            }
             <!-- Nav Item - Account Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccount"
