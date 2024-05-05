@@ -8,15 +8,17 @@ namespace ConstructApp.Models
     public class Expense
     {
         public int Id { get; set; }
+        [ForeignKey("ProjectId")]
+        [ValidateNever]
+        public int ProjectId { get; set; }
         [DisplayName("Project")]
-        public string ApproverId { get; set; }
-        public virtual ApplicationUser Approver { get; set; }
+        public Project? Project { get; set; }
         [DisplayName("Expense Type")]
-        public int ExpenseTypeId { get; set; }
+        public ExpenseType? ExpenseType { get; set; }
 
         [ForeignKey("ExpenseTypeId")]
         [ValidateNever]
-        public ExpenseType? ExpenseType { get; set; }
+        public int ExpenseTypeId { get; set; }
         [DisplayName("Expense Amount")]
         public decimal ExpenseAmount { get; set; }
         [DisplayName("Created By")]
@@ -26,7 +28,9 @@ namespace ConstructApp.Models
         [Required]
         public DateTime CreatedDate { get; set; }
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
-        public virtual Approval? Approval { get; set; }
+        [ValidateNever]
+        public virtual Approval Approval { get; set; }
+
 
 
 

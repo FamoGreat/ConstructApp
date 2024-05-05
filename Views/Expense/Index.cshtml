@@ -13,7 +13,7 @@
 </div>
 
 <div class="form-group">
-    <label asp-for="Expense.ProjectId" class="form-label"></label>
+    <input asp-for="Expense.ProjectId" class="form-label" hidden/>
     <select id="projectSelect" asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control">
         <option disabled selected>-- Select Project --</option>
     </select>

@@ -21,7 +21,9 @@ namespace ConstructApp.Seeds
                 FirstName = "Aidan",
                 LastName = "Construction",
                 EmailConfirmed = true,
-                PhoneNumberConfirmed = false
+                PhoneNumberConfirmed = false,
+                CanRequestForSomeone = true,
+                CanApproved = true
             };
             if (userManager.Users.All(u => u.Id != defaultUser.Id))
             {
@@ -36,13 +38,16 @@ namespace ConstructApp.Seeds
                     await userManager.AddToRoleAsync(defaultUser, Roles.Cashier.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.FinanceManager.ToString());
                 }
-                await roleManager.SeedClaimsForSuperAdmin();
+                await roleManager.SeedClaimsForAdmin();
             }
         }
-        private async static Task SeedClaimsForSuperAdmin(this RoleManager<IdentityRole> roleManager)
+        private async static Task SeedClaimsForAdmin(this RoleManager<IdentityRole> roleManager)
         {
             var adminRole = await roleManager.FindByNameAsync("Admin");
             await roleManager.AddPermissionClaim(adminRole, "UserPermissions");
+            await roleManager.AddPermissionClaim(adminRole, "ExpensePermissions");
+            await roleManager.AddPermissionClaim(adminRole, "ApprovalPermissions");
+            await roleManager.AddPermissionClaim(adminRole, "ProjectPermissions");
         }
         public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)
         {

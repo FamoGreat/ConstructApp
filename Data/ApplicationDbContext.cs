@@ -24,11 +24,7 @@ namespace ConstructApp.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Define one-to-one relationship between Expense and Approval
-            modelBuilder.Entity<Expense>()
-                .HasOne(e => e.Approval)
-                .WithOne(a => a.Expense)
-                .HasForeignKey<Approval>(a => a.ExpenseId);
+          
 
         }
 

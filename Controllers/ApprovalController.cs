@@ -13,7 +13,7 @@ namespace ConstructApp.Controllers
         {
             dbContext = _dbContext;
         }
-        public IActionResult Index()
+        public IActionResult PendingRequest()
         {
             var expenses = dbContext.Expenses
                            .Where(e => e.ApprovalStatus == ApprovalStatus.Pending)
@@ -32,18 +32,15 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
 
-            // Update approval status and description
             if (approvalStatus == "Approved")
             {
                 expense.ApprovalStatus = ApprovalStatus.Approved;
-                // If Approval record exists, update its description
                 if (expense.Approval != null)
                 {
                     expense.Approval.Description = description;
                 }
                 else
                 {
-                    // If no Approval record exists, create a new one
                     expense.Approval = new Approval
                     {
                         ApprovalDate = DateTime.Now,
@@ -54,14 +51,12 @@ namespace ConstructApp.Controllers
             else if (approvalStatus == "Rejected")
             {
                 expense.ApprovalStatus = ApprovalStatus.Rejected;
-                // If Approval record exists, update its description
                 if (expense.Approval != null)
                 {
                     expense.Approval.Description = description;
                 }
                 else
                 {
-                    // If no Approval record exists, create a new one
                     expense.Approval = new Approval
                     {
                         ApprovalDate = DateTime.Now,
@@ -76,7 +71,7 @@ namespace ConstructApp.Controllers
         }
 
         public IActionResult ApprovedRequest()
-        { 
+        {
             var approved = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Approved)
                 .Include(e => e.Project)
                 .Include(e => e.ExpenseType)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240502125805_AddBooleanColumn")]
-    partial class AddBooleanColumn
+    [Migration("20240505171234_UpdateExpense")]
+    partial class UpdateExpense
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,39 @@ namespace ConstructApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Approval", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApproverId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("ExpenseId");
+
+                    b.ToTable("Approvals");
+                });
 
             modelBuilder.Entity("ConstructApp.Models.ApplicationUser", b =>
                 {
@@ -53,6 +86,9 @@ namespace ConstructApp.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
@@ -107,37 +143,6 @@ namespace ConstructApp.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("ConstructApp.Models.Approval", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ApprovalDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ApproverId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ExpenseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApproverId");
-
-                    b.HasIndex("ExpenseId")
-                        .IsUnique();
-
-                    b.ToTable("Approvals");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.Expense", b =>
@@ -450,15 +455,15 @@ namespace ConstructApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Approval", b =>
+            modelBuilder.Entity("Approval", b =>
                 {
                     b.HasOne("ConstructApp.Models.ApplicationUser", "Approver")
                         .WithMany()
                         .HasForeignKey("ApproverId");
 
                     b.HasOne("ConstructApp.Models.Expense", "Expense")
-                        .WithOne("Approval")
-                        .HasForeignKey("ConstructApp.Models.Approval", "ExpenseId")
+                        .WithMany("Approval")
+                        .HasForeignKey("ExpenseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

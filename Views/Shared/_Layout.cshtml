@@ -103,7 +103,10 @@
                 </a>
                 <div id="collapseApproval" class="collapse" aria-labelledby="headingApproval" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-action="Index" asp-controller="Approval">Approval</a>
+                            <a class="collapse-item" asp-action="PendingRequest" asp-controller="Approval">Pending Request</a>
+                        <a class="collapse-item" asp-action="ApprovedRequest" asp-controller="Approval">Approved Request</a>
+                            <a class="collapse-item" asp-action="RejectedRequest" asp-controller="Approval">Rejected Request</a>
+
                     </div>
                 </div>
             </li>

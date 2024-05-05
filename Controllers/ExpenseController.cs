@@ -52,6 +52,11 @@ namespace ConstructApp.Controllers
             {
                 return NotFound();
             }
+            if (!user.CanRequestForSomeone)
+            {
+                TempData["error"] = "You are not authorized to create an expense.";
+                return RedirectToAction("Index");
+            }
 
             ExpenseVM expenseVM = new()
             {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240502144659_AddIsApprovedColumn")]
-    partial class AddIsApprovedColumn
+    [Migration("20240505094306_AddAllTables")]
+    partial class AddAllTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,39 @@ namespace ConstructApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Approval", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApproverId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("ExpenseId");
+
+                    b.ToTable("Approvals");
+                });
 
             modelBuilder.Entity("ConstructApp.Models.ApplicationUser", b =>
                 {
@@ -112,37 +145,6 @@ namespace ConstructApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Approval", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ApprovalDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ApproverId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("ExpenseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApproverId");
-
-                    b.HasIndex("ExpenseId")
-                        .IsUnique();
-
-                    b.ToTable("Approvals");
-                });
-
             modelBuilder.Entity("ConstructApp.Models.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -170,11 +172,17 @@ namespace ConstructApp.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<string>("RequesterId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ExpenseTypeId");
 
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("RequesterId");
 
                     b.ToTable("Expenses");
                 });
@@ -453,15 +461,15 @@ namespace ConstructApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Approval", b =>
+            modelBuilder.Entity("Approval", b =>
                 {
                     b.HasOne("ConstructApp.Models.ApplicationUser", "Approver")
                         .WithMany()
                         .HasForeignKey("ApproverId");
 
                     b.HasOne("ConstructApp.Models.Expense", "Expense")
-                        .WithOne("Approval")
-                        .HasForeignKey("ConstructApp.Models.Approval", "ExpenseId")
+                        .WithMany("Approval")
+                        .HasForeignKey("ExpenseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -484,9 +492,17 @@ namespace ConstructApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ConstructApp.Models.ApplicationUser", "Requester")
+                        .WithMany()
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ExpenseType");
 
                     b.Navigation("Project");
+
+                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.Notification", b =>
