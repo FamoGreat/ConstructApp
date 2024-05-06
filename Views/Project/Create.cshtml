@@ -1,8 +1,9 @@
 ﻿@model Project
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title text-center">Project Information Form</h4>
+<div class="card shadow mb-4">
+    <div class="card-header  text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Project Info</h4>
+    </div>
+    <div class="card-body">
             <form method="post" class="forms-sample">
                 <div class="form-group">
                     <label asp-for="ProjectName" class="p-0"></label>
@@ -43,6 +44,5 @@
                 <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Project"><i class="fas fa-arrow-left"></i> Back To List</a>
 
             </form>
-        </div>
     </div>
 </div>

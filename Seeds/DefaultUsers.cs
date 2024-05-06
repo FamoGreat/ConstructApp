@@ -48,6 +48,8 @@ namespace ConstructApp.Seeds
             await roleManager.AddPermissionClaim(adminRole, "ExpensePermissions");
             await roleManager.AddPermissionClaim(adminRole, "ApprovalPermissions");
             await roleManager.AddPermissionClaim(adminRole, "ProjectPermissions");
+            await roleManager.AddPermissionClaim(adminRole, "ProjectMaterialPermissions");
+
         }
         public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)
         {

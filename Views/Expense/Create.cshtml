@@ -2,10 +2,11 @@
 
 <partial name="_Notification" />
 
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title text-center"><strong>Add Expense</strong></h3>
+<div class="card shadow mb-4">
+    <div class="card-header  text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Expense Form</h4>
+    </div>
+    <div class="card-body">
             <form id="expenseForm" method="post" class="forms-sample">
                 <div class="form-group row">
                     <div class="col-sm-6 mb-3 mb-sm-0">
@@ -36,13 +37,11 @@
                         <span asp-validation-for="Expense.CreatedDate" class="text-danger"></span>
                     </div>
                 </div>
-
-                <!-- Additional fields as needed -->
-
-                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
-                <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Expense"><i class="fas fa-arrow-left"></i> Back To List</a>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
+                    <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Expense"><i class="fas fa-arrow-left"></i> Back To List</a>
+                </div>
 
             </form>
-        </div>
     </div>
 </div>

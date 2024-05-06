@@ -1,5 +1,6 @@
 ﻿using ConstructApp.Data;
 using ConstructApp.Models;
+using ConstructApp.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,26 +68,19 @@ namespace ConstructApp.Controllers
 
             dbContext.SaveChanges();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(PendingRequest));
         }
 
         public IActionResult ApprovedRequest()
         {
-            var approved = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Approved)
+            var approved = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Approved || e.ApprovalStatus == ApprovalStatus.Rejected)
                 .Include(e => e.Project)
                 .Include(e => e.ExpenseType)
+                .Include(e => e.Approval)
                 .ToList();
+
             return View(approved);
         }
-        public IActionResult RejectedRequest()
-        {
-            var rejected = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Rejected)
-                .Include(e => e.Project)
-                .Include(e => e.ExpenseType)
-                .ToList();
-            return View(rejected);
-        }
-
     }
 
 }

@@ -12,35 +12,44 @@ namespace ConstructApp.Controllers
     public class PermissionController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public PermissionController(RoleManager<IdentityRole> roleManager)
+        private readonly IAuthorizationService _authorizationService;
+        public PermissionController(RoleManager<IdentityRole> roleManager, IAuthorizationService authorizationService)
         {
             _roleManager = roleManager;
+            _authorizationService = authorizationService;
         }
         public async Task<ActionResult> Index(string roleId)
         {
-            var model = new PermissionVM();
-            var allPermissions = new List<RoleClaimsVM >();
-            allPermissions.GetPermissions(typeof(Constants.Permissions.UserPermissions), roleId);
-            allPermissions.GetPermissions(typeof(Constants.Permissions.ExpensePermissions), roleId);
-            allPermissions.GetPermissions(typeof(Constants.Permissions.ApprovalPermissions), roleId);
-            allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectPermissions), roleId);
-
-            var role = await _roleManager.FindByIdAsync(roleId);
-            model.RoleId = roleId;
-            var claims = await _roleManager.GetClaimsAsync(role);
-            var allClaimValues = allPermissions.Select(a => a.Value).ToList();
-            var roleClaimValues = claims.Select(a => a.Value).ToList();
-            var authorizedClaims = allClaimValues.Intersect(roleClaimValues).ToList();
-            foreach (var permission in allPermissions)
+            if ((_authorizationService.AuthorizeAsync(User, Constants.Permissions.UserPermissions.View)).Result.Succeeded)
             {
-                if (authorizedClaims.Any(a => a == permission.Value))
+
+                var model = new PermissionVM();
+                var allPermissions = new List<RoleClaimsVM>();
+                allPermissions.GetPermissions(typeof(Constants.Permissions.UserPermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ExpensePermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ApprovalPermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectPermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectMaterialPermissions), roleId);
+
+                var role = await _roleManager.FindByIdAsync(roleId);
+                model.RoleId = roleId;
+                var claims = await _roleManager.GetClaimsAsync(role);
+                var allClaimValues = allPermissions.Select(a => a.Value).ToList();
+                var roleClaimValues = claims.Select(a => a.Value).ToList();
+                var authorizedClaims = allClaimValues.Intersect(roleClaimValues).ToList();
+                foreach (var permission in allPermissions)
                 {
-                    permission.Selected = true;
+                    if (authorizedClaims.Any(a => a == permission.Value))
+                    {
+                        permission.Selected = true;
+                    }
                 }
+                model.RoleClaims = allPermissions;
+                TempData["success"] = "Permission(s) added successfully";
+
+                return View(model);
             }
-            model.RoleClaims = allPermissions;
-            return View(model);
+            return RedirectToAction("Index", "ErrorPermission");
         }
         public async Task<IActionResult> Update(PermissionVM model)
         {

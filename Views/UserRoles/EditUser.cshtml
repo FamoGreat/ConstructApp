@@ -1,11 +1,14 @@
 ﻿@model RegisterVM
 
+
+<partial name="_Notification" />
+
 <div class="card shadow mb-4">
     <div class="card-header  text-center">
-        <h4 class="m-0 font-weight-bold text-primary">Registration Form</h4>
+        <h4 class="m-0 font-weight-bold text-primary">Edit USer</h4>
     </div>
     <div class="card-body">
-        <form enctype="multipart/form-data" asp-action="Register" method="post">
+        <form enctype="multipart/form-data" asp-action="EditUser" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <input asp-for="Id" type="hidden" />
             <div class="form-group row">
@@ -60,7 +63,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary">Edit User</button>
                 <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="UserRoles"><i class="fas fa-arrow-left"></i> Back To List</a>
             </div>
         </form>

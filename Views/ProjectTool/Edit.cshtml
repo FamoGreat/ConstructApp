@@ -1,9 +1,10 @@
 ﻿@model ProjectTool
 
-<div class="col-12 grid-margin stretch-card mb-5">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title text-center">Edit Project Tool Information Information</h4>
+<div class="card shadow mb-4">
+    <div class="card-header  text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Edit Project Tools Info</h4>
+    </div>
+    <div class="card-body">
             <form asp-action="Edit" method="post" class="forms-sample">
                 <input asp-for="Id" type="hidden" />
                 <div class="row">
@@ -19,6 +20,6 @@
 
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
             </form>
-        </div>
     </div>
 </div>
+

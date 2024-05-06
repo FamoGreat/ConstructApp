@@ -238,11 +238,15 @@ namespace ConstructApp.Controllers
 
             var viewModel = new RegisterVM
             {
+                Id = userId,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                Roles = new SelectList(_roleManager.Roles, "Name", "Name")
+                Roles = new SelectList(_roleManager.Roles, "Name", "Name"),
+                Signature = user.Signature,
+                CanApproved = user.CanApproved,
+                CanRequestForSomeone = user.CanRequestForSomeone
             };
             return View(viewModel);
         }
@@ -260,10 +264,14 @@ namespace ConstructApp.Controllers
                 user.LastName = viewModel.LastName;
                 user.Email = viewModel.Email;
                 user.PhoneNumber = viewModel.PhoneNumber;
+                user.Signature = viewModel.Signature;
+                user.CanApproved = viewModel.CanApproved;
+                user.CanRequestForSomeone = viewModel.CanRequestForSomeone;
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
+                    TempData["success"] = "User Info Updated successfully";
                     return RedirectToAction("Index", "UserRoles");
                 }
                 else
@@ -275,7 +283,9 @@ namespace ConstructApp.Controllers
                 }
             }
 
+            
             viewModel.Roles = new SelectList(_roleManager.Roles, "Name", "Name");
+            TempData["error"] = "Error in Updating user";
             return View(viewModel);
         }
 

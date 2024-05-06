@@ -223,6 +223,16 @@ namespace ConstructApp.Controllers
             }
         }
 
+        public IActionResult AllRequests()
+        {
+            var allRequests = dbContext.Expenses.Where(e => e.ApprovalStatus == ApprovalStatus.Approved || e.ApprovalStatus == ApprovalStatus.Rejected)
+             .Include(e => e.Project)
+             .Include(e => e.ExpenseType)
+             .Include(e => e.Approval)
+             .ToList();
+
+            return View(allRequests);  
+        }
 
         #region API CALLS
         [HttpGet]

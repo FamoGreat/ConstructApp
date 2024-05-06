@@ -10,8 +10,8 @@ namespace ConstructApp.Models
         public int Id { get; set; }
         [ForeignKey("ProjectId")]
         [ValidateNever]
-        public int ProjectId { get; set; }
         [DisplayName("Project")]
+        public int ProjectId { get; set; }
         public Project? Project { get; set; }
         [DisplayName("Expense Type")]
         public ExpenseType? ExpenseType { get; set; }
@@ -29,7 +29,7 @@ namespace ConstructApp.Models
         public DateTime CreatedDate { get; set; }
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
         [ValidateNever]
-        public virtual Approval Approval { get; set; }
+        public  virtual Approval Approval { get; set; }
 
 
 

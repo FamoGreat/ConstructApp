@@ -26,19 +26,16 @@ function loadDataTable() {
                 <a href="/Project/Edit?id=${data}" class="m-2 btn btn-sm btn-primary">
                     <div style="display: flex; align-items: center;">
                         <i class="fas fa-edit mr-1"></i>
-                        <span>Edit</span>
                     </div>
                 </a>
                 <a href="/Project/Details?id=${data}" class="m-2 btn btn-sm btn-success">
                     <div style="display: flex; align-items: center;">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        <span>Details</span>
+                        <i class="fas fa-eye  mr-1"></i>
                     </div>
                 </a>
                 <a onClick=Delete('/Project/Delete/${data}') class="m-2 btn btn-sm btn-danger">
                     <div style="display: flex; align-items: center;">
                         <i class="fas fa-trash-alt mr-1"></i>
-                        <span>Delete</span>
                     </div>
                 </a>
             </div>`;

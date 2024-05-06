@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using ConstructApp.Constants;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ConstructApp.Models
 {
@@ -35,9 +36,10 @@ namespace ConstructApp.Models
             get => Enum.GetName(typeof(UnitOfMeasurement), MaterialUOM);
             set => MaterialUOM = (UnitOfMeasurement)Enum.Parse(typeof(UnitOfMeasurement), value);
         }
-        // Navigation property to link to the Project entity
+        [DisplayName("Project")]
+        [ValidateNever]
+        [ForeignKey("ProjectId")]
         public int ProjectId { get; set; }
-
         public virtual Project? Project { get; set; }
     }
 }

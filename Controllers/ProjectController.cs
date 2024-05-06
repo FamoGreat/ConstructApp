@@ -2,10 +2,14 @@
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using ConstructApp.Constants;
 using Microsoft.AspNetCore.Identity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ConstructApp.Controllers
 {
@@ -14,16 +18,19 @@ namespace ConstructApp.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
+
         public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager)
         {
             dbContext = _dbContext;
             _userManager = userManager;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
-            List<Project> projectList = dbContext.Projects.ToList();
+            List<Project> projectList = await dbContext.Projects.ToListAsync();
             return View(projectList);
         }
+
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -42,63 +49,78 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
         }
+
         [HttpPost]
-        public IActionResult Create(Project project)
+        public async Task<IActionResult> Create(Project project)
         {
             if (ModelState.IsValid)
             {
                 dbContext.Projects.Add(project);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
                 TempData["success"] = "Project created successfully";
 
-                return RedirectToAction("Index", "Project");
-            }
-            return View();
-        }
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-
-            Project? project = dbContext.Projects.FirstOrDefault(p => p.Id == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user != null)
-            {
-                var fullName = $"{user.FirstName} {user.LastName}";
-                project.CreatedBy = fullName;
+                return RedirectToAction(nameof(Index));
             }
             return View(project);
         }
 
+        public async Task<IActionResult> Edit(int? projectId)
+        {
+            try
+            {
+                if (projectId == null || projectId == 0)
+                {
+                    return NotFound();
+                }
+
+                var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+                if (project == null)
+                {
+                    return NotFound();
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    var fullName = $"{user.FirstName} {user.LastName}";
+                    project.CreatedBy = fullName;
+                }
+                return View(project);
+            }
+            catch (Exception ex) 
+            {
+                TempData["error"] = $"An error occurred while retrieving the project for editing: {ex.Message}";
+                return View();
+            }
+         
+        }
+
+
+
         [HttpPost]
-        public IActionResult Edit(Project updatedProject)
+        public async Task<IActionResult> Edit(Project updatedProject)
         {
             if (ModelState.IsValid)
             {
                 dbContext.Update(updatedProject);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
                 TempData["success"] = "Project updated successfully";
 
-                return RedirectToAction("Index", "Project");
+                return RedirectToAction(nameof(Index));
             }
-            return View();
+            return View(updatedProject);
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? projectId)
         {
-            if (id == null || id == 0)
+            if (projectId == null || projectId == 0)
             {
                 return NotFound();
             }
 
-            var project = dbContext.Projects.Include(p => p.ProjectMaterials).Include(pt => pt.ProjectTools).FirstOrDefault(p => p.Id == id);
+            var project = await dbContext.Projects.Include(p => p.ProjectMaterials)
+                                                   .Include(pt => pt.ProjectTools)
+                                                   .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null)
             {
@@ -107,29 +129,52 @@ namespace ConstructApp.Controllers
 
             return View(project);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest();
+            }
+
+            var project = await dbContext.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                dbContext.Projects.Remove(project);
+                await dbContext.SaveChangesAsync();
+                TempData["success"] = "Project deleted successfully";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["erro"] = $"An error occurred while deleting the project: {ex.Message}.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
         #region API CALLS
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            List<Project> projects = dbContext.Projects.ToList();
 
-            return Json(new { data = projects });
-        }
         [HttpGet]
-        public IActionResult GetMaterial(int? id)
+        public async Task<IActionResult> GetMaterial(int? id)
         {
             if (id == null || id == 0)
             {
                 return BadRequest(new { success = false, message = "ID parameter is missing." });
             }
 
-            var project = dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefault(p => p.Id == id);
+            var project = await dbContext.Projects.Include(p => p.ProjectMaterials).FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
             {
                 return NotFound(new { success = false, message = $"Project Material with ID {id} not found." });
             }
+
             foreach (var material in project.ProjectMaterials)
             {
                 material.MaterialUOMString = Enum.GetName(typeof(UnitOfMeasurement), material.MaterialUOM);
@@ -140,17 +185,19 @@ namespace ConstructApp.Controllers
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 WriteIndented = true
             };
+
             return Json(new { data = project.ProjectMaterials }, options);
         }
+
         [HttpGet]
-        public IActionResult GetTools(int? id)
+        public async Task<IActionResult> GetTools(int? id)
         {
             if (id == null || id == 0)
             {
                 return BadRequest(new { success = false, message = "ID parameter is missing." });
             }
 
-            var project = dbContext.Projects.Include(p => p.ProjectTools).FirstOrDefault(p => p.Id == id);
+            var project = await dbContext.Projects.Include(p => p.ProjectTools).FirstOrDefaultAsync(p => p.Id == id);
 
             if (project == null)
             {
@@ -162,24 +209,9 @@ namespace ConstructApp.Controllers
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
                 WriteIndented = true
             };
+
             return Json(new { data = project.ProjectTools }, options);
-        }
-
-
-        [HttpDelete]
-        public IActionResult Delete(int? id)
-        {
-            var projectToBeDeleted = dbContext.Projects.FirstOrDefault(p => p.Id == id);
-            if (projectToBeDeleted == null)
-            {
-                return Json(new { success = false, message = "Error while deliting" });
-            }
-
-            dbContext.Remove(projectToBeDeleted);
-            dbContext.SaveChanges();
-            return Json(new { success = true, message = "Delete Successfully" });
-        }
-
+        } 
 
         #endregion
     }

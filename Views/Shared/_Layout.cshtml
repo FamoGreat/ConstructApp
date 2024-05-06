@@ -69,7 +69,10 @@
                 </a>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-area="ProjectManager" asp-action="Index" asp-controller="Project">Projects</a>
+                        <a class="collapse-item" asp-action="Index" asp-controller="Project">Projects</a>
+                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectMaterial">Materials</a>
+                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectTool">Tools</a>
+
                     </div>
                 </div>
             </li>
@@ -88,6 +91,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" asp-action="Index" asp-controller="Expense">Expenses</a>
                         <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
+                            <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
                     </div>
                 </div>
             </li>
@@ -105,8 +109,8 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                             <a class="collapse-item" asp-action="PendingRequest" asp-controller="Approval">Pending Request</a>
                         <a class="collapse-item" asp-action="ApprovedRequest" asp-controller="Approval">Approved Request</a>
-                            <a class="collapse-item" asp-action="RejectedRequest" asp-controller="Approval">Rejected Request</a>
-
+@*                             <a class="collapse-item" asp-action="RejectedRequest" asp-controller="Approval">Rejected Request</a>
+ *@
                     </div>
                 </div>
             </li>
@@ -207,7 +211,7 @@
                             </li>
 
                             <!-- Nav Item - Alerts -->
-                            <li class="nav-item dropdown no-arrow mx-1">
+@*                             <li class="nav-item dropdown no-arrow mx-1">
                                 <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fas fa-bell fa-fw"></i>
@@ -256,7 +260,7 @@
                                     <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                                 </div>
                             </li>
-
+ *@
                         <!-- Nav Item - Messages -->
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"

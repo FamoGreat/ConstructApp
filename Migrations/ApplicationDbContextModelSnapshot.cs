@@ -47,9 +47,6 @@ namespace ConstructApp.Migrations
 
                     b.HasIndex("ApproverId");
 
-                    b.HasIndex("ExpenseId")
-                        .IsUnique();
-
                     b.ToTable("Approvals");
                 });
 
@@ -148,6 +145,9 @@ namespace ConstructApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ApprovalId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("int");
 
@@ -168,6 +168,9 @@ namespace ConstructApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovalId")
+                        .IsUnique();
 
                     b.HasIndex("ExpenseTypeId");
 
@@ -456,19 +459,17 @@ namespace ConstructApp.Migrations
                         .WithMany()
                         .HasForeignKey("ApproverId");
 
-                    b.HasOne("ConstructApp.Models.Expense", "Expense")
-                        .WithOne("Approval")
-                        .HasForeignKey("Approval", "ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Approver");
-
-                    b.Navigation("Expense");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.Expense", b =>
                 {
+                    b.HasOne("Approval", "Approval")
+                        .WithOne("Expense")
+                        .HasForeignKey("ConstructApp.Models.Expense", "ApprovalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ConstructApp.Models.ExpenseType", "ExpenseType")
                         .WithMany()
                         .HasForeignKey("ExpenseTypeId")
@@ -480,6 +481,8 @@ namespace ConstructApp.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Approval");
 
                     b.Navigation("ExpenseType");
 
@@ -568,10 +571,9 @@ namespace ConstructApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Expense", b =>
+            modelBuilder.Entity("Approval", b =>
                 {
-                    b.Navigation("Approval")
-                        .IsRequired();
+                    b.Navigation("Expense");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.Project", b =>

@@ -1,8 +1,9 @@
 ﻿@model Project
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title text-center">Edit Project Information Form</h4>
+<div class="card shadow mb-4">
+    <div class="card-header  text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Edit Project Info</h4>
+    </div>
+    <div class="card-body">
             <form method="post" class="forms-sample">
                 <input asp-for="@Model.Id" hidden />
                 <div class="form-group">
@@ -46,6 +47,5 @@
                 <a href="/ProjectTool/Create/@Model.Id" class="btn btn-primary"><i class="fas fa-plus"></i>  Tools</a>
 
             </form>
-        </div>
     </div>
 </div>

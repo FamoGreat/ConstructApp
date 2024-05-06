@@ -1,10 +1,11 @@
 ﻿@model ProjectTool
 <partial name="_Notification" />
 
-<div class="col-12 grid-margin stretch-card mb-5">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title text-center">Project Material Information Form</h4>
+<div class="card shadow mb-4">
+    <div class="card-header  text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Project Tools Info</h4>
+    </div>
+    <div class="card-body">
             <form asp-action="Create" method="post" class="forms-sample">
                 <input asp-for="ProjectId" hidden />
                 <div class="row">
@@ -22,6 +23,5 @@
                 <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="ProjectTool"><i class="fas fa-arrow-left"></i> Back To List</a>
 
             </form>
-        </div>
     </div>
 </div>

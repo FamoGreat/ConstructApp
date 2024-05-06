@@ -1,7 +1,10 @@
 ﻿using ConstructApp.Constants;
 using ConstructApp.Data;
 using ConstructApp.Models;
+using ConstructApp.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
@@ -10,77 +13,66 @@ namespace ConstructApp.Controllers
     public class ProjectMaterialController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public ProjectMaterialController(ApplicationDbContext dbContextContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProjectMaterialController(ApplicationDbContext dbContextContext, UserManager<ApplicationUser> userManager)
         {
             dbContext = dbContextContext;
+            _userManager = userManager;
         }
         public IActionResult Index()
         {
-            List<ProjectMaterial> ProjectMaterialList = dbContext.ProjectMaterials.ToList();
+            List<ProjectMaterial> ProjectMaterialList = dbContext.ProjectMaterials
+                .Include(p => p.Project)
+                .ToList();
             return View(ProjectMaterialList);
         }
-        public IActionResult Create(int id)
+        public async Task<IActionResult> Create()
         {
 
-            var projectMaterail = new ProjectMaterial { ProjectId = id };
-            return View(projectMaterail);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            ProjectMaterialVM projectMaterialVM = new()
+            {
+                ProjectList = dbContext.Projects.Select(u => new SelectListItem
+                {
+                    Text = u.ProjectName,
+                    Value = u.Id.ToString()
+                })
+            };
+
+            return View(projectMaterialVM);
         }
+      
         [HttpPost]
-        //public IActionResult Create(ProjectMaterial ProjectMaterial)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            bool isUnique = dbContext.ProjectMaterials.Any(p => p.MaterialCode == ProjectMaterial.MaterialCode);
-        //            if (isUnique)
-        //            {
-        //                // Material code is not unique, add a model error and return the view
-        //                ModelState.AddModelError("MaterialCode", "Material code must be unique.");
-        //                return View(ProjectMaterial);
-        //            }
-        //            ProjectMaterial.Id = 0;
-        //            dbContext.ProjectMaterials.Add(ProjectMaterial);
-        //            dbContext.SaveChanges();
-        //            TempData["success"] = "Project Material created successfully";
-
-        //            return RedirectToAction("Index", "ProjectMaterial");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["error"] = $"An error occurred while creating the Project Material: {ex.Message}";
-        //    }
-
-        //    return View();
-        //}
-        [HttpPost]
-        public IActionResult Create(ProjectMaterial ProjectMaterial)
+        public IActionResult Create(ProjectMaterialVM projectMaterialVM)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return View(ProjectMaterial);
+                    return View(projectMaterialVM);
                 }
 
                 // Check if the MaterialCode is unique
-                bool isUnique = dbContext.ProjectMaterials.Any(p => p.MaterialCode == ProjectMaterial.MaterialCode);
+                bool isUnique = dbContext.ProjectMaterials.Any(p => p.MaterialCode == projectMaterialVM.ProjectMaterial.MaterialCode);
                 if (isUnique)
                 {
                     ModelState.AddModelError("MaterialCode", "Material code must be unique.");
-                    return View(ProjectMaterial);
+                    return View(projectMaterialVM);
                 }
 
                 // Validate MaterialUOM enum value
-                if (!Enum.IsDefined(typeof(UnitOfMeasurement), ProjectMaterial.MaterialUOM))
+                if (!Enum.IsDefined(typeof(UnitOfMeasurement), projectMaterialVM.ProjectMaterial.MaterialUOM))
                 {
                     ModelState.AddModelError("MaterialUOM", "Invalid unit of measurement.");
-                    return View(ProjectMaterial);
+                    return View(projectMaterialVM);
                 }
 
-                ProjectMaterial.Id = 0;
-                dbContext.ProjectMaterials.Add(ProjectMaterial);
+                dbContext.ProjectMaterials.Add(projectMaterialVM.ProjectMaterial);
                 dbContext.SaveChanges();
                 TempData["success"] = "Project Material created successfully";
 
@@ -89,28 +81,47 @@ namespace ConstructApp.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = $"An error occurred while creating the Project Material: {ex.Message}";
-                return View(ProjectMaterial);
+                return View(projectMaterialVM);
             }
         }
 
         public IActionResult Edit(int? id)
         {
-            if (id == null || id == 0)
+            try
             {
-                return NotFound();
-            }
+                if (id == null || id == 0)
+                {
+                    return NotFound();
+                }
 
-            ProjectMaterial? ProjectMaterial = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == id);
-            if (ProjectMaterial == null)
+                ProjectMaterial? projectMaterial = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == id);
+                if (projectMaterial == null)
+                {
+                    return NotFound();
+                }
+                var projectList = dbContext.Projects.Select(u => new SelectListItem
+                {
+                    Text = u.ProjectName,
+                    Value = u.Id.ToString(),
+                    Selected = u.Id == projectMaterial.ProjectId
+                }).ToList();
+                var projectMaterialVM = new ProjectMaterialVM
+                {
+                    ProjectMaterial = projectMaterial,
+                    ProjectList = projectList
+                };
+                return View(projectMaterialVM);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                TempData["error"] = "An error occurred: " + ex.Message;
+                return RedirectToAction("Index");
             }
-
-            return View(ProjectMaterial);
+           
         }
 
         [HttpPost]
-        public IActionResult Edit(ProjectMaterial updatedProjectMaterial)
+        public IActionResult Edit(ProjectMaterialVM updatedProjectMaterial)
         {
             if (!ModelState.IsValid)
             {
@@ -119,18 +130,17 @@ namespace ConstructApp.Controllers
 
             try
             {
-                var existingMaterial = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == updatedProjectMaterial.Id);
+                var existingMaterial = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == updatedProjectMaterial.ProjectMaterial.Id);
                 if (existingMaterial == null)
                 {
                     return NotFound();
                 }
 
-                if (existingMaterial.MaterialCode != updatedProjectMaterial.MaterialCode)
+                if (existingMaterial.MaterialCode != updatedProjectMaterial.ProjectMaterial.MaterialCode)
                 {
                     // Check if the new MaterialCode is unique
-                    bool isUnique = !dbContext.ProjectMaterials.Any(p => p.MaterialCode == updatedProjectMaterial.MaterialCode);
+                    bool isUnique = !dbContext.ProjectMaterials.Any(p => p.MaterialCode == updatedProjectMaterial.ProjectMaterial.MaterialCode);
 
-                    // If the new MaterialCode is not unique, add a ModelState error and return the view
                     if (!isUnique)
                     {
                         ModelState.AddModelError("MaterialCode", "Material code must be unique.");
@@ -139,15 +149,34 @@ namespace ConstructApp.Controllers
                 }
 
                 // Update other properties
-                existingMaterial.MaterialName = updatedProjectMaterial.MaterialName;
-                existingMaterial.EstimatedQuantity = updatedProjectMaterial.EstimatedQuantity;
-                existingMaterial.EstimatedCost = updatedProjectMaterial.EstimatedCost;
-                existingMaterial.MaterialUOM = updatedProjectMaterial.MaterialUOM;
+                existingMaterial.MaterialName = updatedProjectMaterial.ProjectMaterial.MaterialName;
+                existingMaterial.EstimatedQuantity = updatedProjectMaterial.ProjectMaterial.EstimatedQuantity;
+                existingMaterial.EstimatedCost = updatedProjectMaterial.ProjectMaterial.EstimatedCost;
+                existingMaterial.MaterialUOM = updatedProjectMaterial.ProjectMaterial.MaterialUOM;
+                // Update ProjectName if necessary
+                //if (existingMaterial.ProjectId != updatedProjectMaterial.ProjectMaterial.ProjectId)
+                //{
+                //    var project = dbContext.Projects.FirstOrDefault(p => p.Id == updatedProjectMaterial.ProjectMaterial.ProjectId);
+                //    if (project != null)
+                //    {
+                //        if (existingMaterial.Project == null)
+                //        {
+                //            existingMaterial.Project = new Project(); 
+                //        }
+
+                //        existingMaterial.Project.ProjectName = project.ProjectName;
+
+                //        if (User.Identity.IsAuthenticated)
+                //        {
+                //            existingMaterial.Project.CreatedBy = User.Identity.Name;
+                //        }
+                //    }
+                //}
 
                 dbContext.SaveChanges();
                 TempData["success"] = "Project Material updated successfully";
 
-                return RedirectToAction("Details", "Project", new { id = existingMaterial.ProjectId });
+                return RedirectToAction("Index", "ProjectMaterial");
             }
             catch (Exception ex)
             {
@@ -156,23 +185,35 @@ namespace ConstructApp.Controllers
             }
         }
 
-
-        public IActionResult Details(int? id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
+            if (id == null)
             {
-                return NotFound();
+                return BadRequest(new { success = false, message = "ID parameter is missing." });
             }
 
-            var ProjectMaterial = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == id);
-
-            if (ProjectMaterial == null)
+            var ProjectMaterialToBeDeleted = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == id);
+            if (ProjectMaterialToBeDeleted == null)
             {
-                return NotFound();
+                return NotFound(new { success = false, message = $"Project Material with ID {id} not found." });
             }
 
-            return View(ProjectMaterial);
+            try
+            {
+                dbContext.Remove(ProjectMaterialToBeDeleted);
+                dbContext.SaveChanges();
+                TempData["success"] = "Material Delete Successful";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["erro"] = $"An error occurred while deleting the Material: {ex.Message}.";
+                return RedirectToAction(nameof(Index));
+            }
         }
+
 
         #region API CALLS
 
@@ -196,32 +237,6 @@ namespace ConstructApp.Controllers
             return Ok(new { data });
         }
 
-        [HttpDelete]
-        public IActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return BadRequest(new { success = false, message = "ID parameter is missing." });
-            }
-
-            var ProjectMaterialToBeDeleted = dbContext.ProjectMaterials.FirstOrDefault(p => p.Id == id);
-            if (ProjectMaterialToBeDeleted == null)
-            {
-                return NotFound(new { success = false, message = $"Project Material with ID {id} not found." });
-            }
-
-            try
-            {
-                dbContext.Remove(ProjectMaterialToBeDeleted);
-                dbContext.SaveChanges();
-                return Ok(new { success = true, message = "Material Delete Successful" });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(500, new { success = false, message = $"An error occurred while deleting the project material: {ex.Message}" });
-            }
-        }
 
         #endregion
 
