@@ -1,4 +1,4 @@
-﻿@model List<Notification>
+﻿@model List<NotificationViewModel>
 
 @{
     ViewBag.Title = "All Notifications";
@@ -14,16 +14,23 @@
             {
                 <a class="list-group-item list-group-item-action" href="@Url.Action("Single", "Notification", new { id = notification.Id })">
                     <div class="d-flex w-100 justify-content-between">
-                        @if (notification.ApplicationUser?.ProfileImage != null && notification.ApplicationUser.ProfileImage.Length > 0)
-                        {
-                            var base64Image = Convert.ToBase64String(notification.ApplicationUser.ProfileImage);
-                            <img src="data:image/*;base64,@base64Image" alt="Sender Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
-                        }
-                        else
-                        {
-                            <img src="~/img/undraw_profile.svg" alt="Default Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
-                        }
-                        <h5 class="mb-1">@notification.ApplicationUser?.UserName</h5>
+                        <div class="d-flex align-items-center py-3">
+                            <div class="mr-3">
+                                @if (notification.Sender?.ProfileImage != null && notification.Sender.ProfileImage.Length > 0)
+                                {
+                                    var base64Image = Convert.ToBase64String(notification.Sender.ProfileImage);
+                                    <img src="data:image/*;base64,@base64Image" alt="Sender Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
+                                }
+                                else
+                                {
+                                    <img src="~/img/undraw_profile.svg" alt="Default Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
+                                }
+                            </div>
+                            <div>
+                                <h5 class="mb-1">@notification.Sender?.FirstName @notification.Sender?.LastName</h5>
+                            </div>
+                        </div>
+
                         <small>@notification.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
                     </div>
                     <p class="mb-1">@notification.Message</p>

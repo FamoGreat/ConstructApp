@@ -1,5 +1,6 @@
 ﻿using ConstructApp.Data;
 using ConstructApp.Models;
+using ConstructApp.Models.ViewModels;
 using ConstructApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,9 +25,31 @@ namespace ConstructApp.Controllers
         {
             var notifications = dbContext.Notifications
                 .Include(n => n.ApplicationUser)
+                .Where(n => !n.IsRead)
                 .OrderByDescending(n => n.Timestamp)
                 .ToList();
-            return View(notifications);
+
+            var senderIds = notifications.Select(n => n.SenderId).Distinct().ToList();
+            var senders = dbContext.Users
+                .Where(u => senderIds.Contains(u.Id))
+                .ToDictionary(u => u.Id);
+
+            var notificationViewModels = notifications.Select(n => new NotificationViewModel
+            {
+                Id = n.Id,
+                Message = n.Message,
+                Timestamp = n.Timestamp,
+                IsRead = n.IsRead,
+
+                Sender = senders.ContainsKey(n.SenderId) ? new SenderViewModel
+                {
+                    FirstName = senders[n.SenderId].FirstName,
+                    LastName = senders[n.SenderId].LastName,
+                    ProfileImage = senders[n.SenderId].ProfileImage
+                } : null,
+            }).ToList();
+
+            return View(notificationViewModels);
         }
 
         public IActionResult Single(int id) 
@@ -46,17 +69,16 @@ namespace ConstructApp.Controllers
             var expense = dbContext.Expenses.FirstOrDefault(e => e.Id == expenseId);
             if (expense != null && expense.ApprovalStatus == ApprovalStatus.Pending)
             {
-                var currentUserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var senderUserId = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var user = _userManager.FindByIdAsync(currentUserId).Result;
+                var user = _userManager.FindByIdAsync(senderUserId).Result;
                 if (user != null)
                 {
-                    string message = $"Hell! expense request (Expese type: {expense.ExpenseType?.Name}) is pending approval. Please review and take necessary action.";
+                    string message = $"Hello! expense request (Expese type: {expense.ExpenseType?.Name}) is pending approval. Please review and take necessary action.";
 
-                    // Create a new notification
                     var notification = new Notification
                     {
-                        UserId = currentUserId,
+                        SenderId = senderUserId,
                         Message = message,
                         Timestamp = DateTime.Now,
                         IsRead = false
@@ -73,20 +95,26 @@ namespace ConstructApp.Controllers
         public IActionResult FetchNotifications()
         {
             var notifications = dbContext.Notifications
-                .Include(n => n.ApplicationUser)
                 .Where(n => !n.IsRead)
                 .OrderByDescending(n => n.Timestamp)
                 .ToList();
 
+            var senderIds = notifications.Select(n => n.SenderId).Distinct().ToList();
+            var senders = dbContext.Users
+                .Where(u => senderIds.Contains(u.Id))
+                .ToDictionary(u => u.Id);
+
             var formattedNotifications = notifications.Select(n => new
             {
                 n.Id,
+                Sender = senders.ContainsKey(n.SenderId) ? new SenderViewModel
+                {
+                    FirstName = senders[n.SenderId].FirstName,
+                    LastName = senders[n.SenderId].LastName,
+                    ProfileImage = senders[n.SenderId].ProfileImage
+                } : null,
                 n.Message,
-                Timestamp = n.Timestamp.ToString("yyyy-MM-dd HH:mm:ss"),
-                ImageUrl = n.ApplicationUser?.ProfileImage != null
-                    ? $"data:image/*;base64,{Convert.ToBase64String(n.ApplicationUser.ProfileImage)}"
-                    : "~/img/undraw_profile.svg",
-                n.ApplicationUser?.UserName 
+                Timestamp = n.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
             }).ToList();
 
           
