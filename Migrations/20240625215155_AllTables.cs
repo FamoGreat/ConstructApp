@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConstructApp.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAllTables : Migration
+    public partial class AllTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -228,18 +228,11 @@ namespace ConstructApp.Migrations
                     ExpenseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
-                    RequesterId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ApprovalStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Expenses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Expenses_AspNetUsers_RequesterId",
-                        column: x => x.RequesterId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Expenses_ExpenseTypes_ExpenseTypeId",
                         column: x => x.ExpenseTypeId,
@@ -307,8 +300,7 @@ namespace ConstructApp.Migrations
                     ApproverId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ExpenseId = table.Column<int>(type: "int", nullable: false),
                     ApprovalDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ApprovalStatus = table.Column<int>(type: "int", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -334,7 +326,8 @@ namespace ConstructApp.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Approvals_ExpenseId",
                 table: "Approvals",
-                column: "ExpenseId");
+                column: "ExpenseId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -384,11 +377,6 @@ namespace ConstructApp.Migrations
                 name: "IX_Expenses_ProjectId",
                 table: "Expenses",
                 column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Expenses_RequesterId",
-                table: "Expenses",
-                column: "RequesterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_ApplicationUserId",

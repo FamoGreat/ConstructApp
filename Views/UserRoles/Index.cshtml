@@ -30,16 +30,25 @@
                             <td>@string.Join(", ", user.Roles.ToList())</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a class="btn btn-info btn-sm mr-2" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId"><i class="fas fa-tasks"></i></a>
-                                    <a class="btn btn-primary btn-sm mr-2" asp-controller="UserRoles" asp-action="EditUser" asp-route-userId="@user.UserId"><i class="fas fa-edit"></i></a>
-                                    <form method="post" asp-action="DeleteUser" asp-controller="UserRoles"
-                                          data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
-                                          data-confirm-type="warning">
-                                        <input type="hidden" name="userId" value="@user.UserId" />
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    @if ((AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.View)).Result.Succeeded)
+                                    {
+                                        <a class="btn btn-info btn-sm mr-2" asp-controller="UserRoles" asp-action="Manage" asp-route-userId="@user.UserId"><i class="fas fa-tasks"></i></a>
+                                    }
+                                    @if ((AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.Edit)).Result.Succeeded)
+                                    {
+                                        <a class="btn btn-primary btn-sm mr-2" asp-controller="UserRoles" asp-action="EditUser" asp-route-userId="@user.UserId"><i class="fas fa-edit"></i></a>
+                                    }
+                                    @if ((AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.Delete)).Result.Succeeded)
+                                    {
+                                        <form method="post" asp-action="DeleteUser" asp-controller="UserRoles"
+                                              data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
+                                              data-confirm-type="warning">
+                                            <input type="hidden" name="userId" value="@user.UserId" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }                               
                                 </div>
                             </td>
                         </tr>

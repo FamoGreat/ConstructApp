@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using ConstructApp.Constants;
 using Microsoft.AspNetCore.Identity;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Build.ObjectModelRemoting;
 
 namespace ConstructApp.Controllers
 {
@@ -18,22 +20,40 @@ namespace ConstructApp.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAuthorizationService _authorizationService;
 
-        public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager)
+        public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager, IAuthorizationService authorizationService)
         {
             dbContext = _dbContext;
             _userManager = userManager;
+            _authorizationService = authorizationService;
         }
 
         public async Task<IActionResult> Index()
         {
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, Constants.Permissions.ProjectPermissions.View);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return RedirectToAction("Index", "ErrorPermission");
+            }
+
             List<Project> projectList = await dbContext.Projects.ToListAsync();
+
             return View(projectList);
         }
 
         public async Task<IActionResult> Create()
         {
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, Constants.Permissions.ProjectPermissions.Create);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return RedirectToAction("Index", "ErrorPermission");
+            }
+
             var user = await _userManager.GetUserAsync(User);
+
             if (user != null)
             {
                 var fullName = $"{user.FirstName} {user.LastName}";
@@ -42,6 +62,7 @@ namespace ConstructApp.Controllers
                 {
                     CreatedBy = fullName
                 };
+
                 return View(project);
             }
             else
@@ -73,6 +94,12 @@ namespace ConstructApp.Controllers
                     return NotFound();
                 }
 
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, Constants.Permissions.ProjectPermissions.Edit);
+                if (!authorizationResult.Succeeded)
+                {
+                    return RedirectToAction("Index", "ErrorPermission");
+                }
+
                 var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
                 if (project == null)
                 {
@@ -85,14 +112,14 @@ namespace ConstructApp.Controllers
                     var fullName = $"{user.FirstName} {user.LastName}";
                     project.CreatedBy = fullName;
                 }
+
                 return View(project);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 TempData["error"] = $"An error occurred while retrieving the project for editing: {ex.Message}";
                 return View();
             }
-         
         }
 
 
@@ -118,9 +145,16 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
 
-            var project = await dbContext.Projects.Include(p => p.ProjectMaterials)
-                                                   .Include(pt => pt.ProjectTools)
-                                                   .FirstOrDefaultAsync(p => p.Id == projectId);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, Constants.Permissions.ProjectPermissions.View);
+            if (!authorizationResult.Succeeded)
+            {
+                return RedirectToAction("ErrorPermission", "Permission");
+            }
+
+            var project = await dbContext.Projects
+                                         .Include(p => p.ProjectMaterials)
+                                         .Include(pt => pt.ProjectTools)
+                                         .FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null)
             {
@@ -129,6 +163,8 @@ namespace ConstructApp.Controllers
 
             return View(project);
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int? id)
@@ -136,6 +172,12 @@ namespace ConstructApp.Controllers
             if (id == null)
             {
                 return BadRequest();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, Constants.Permissions.ProjectPermissions.Delete);
+            if (!authorizationResult.Succeeded)
+            {
+                return RedirectToAction("Index", "ErrorPermission");
             }
 
             var project = await dbContext.Projects.FindAsync(id);
@@ -148,12 +190,13 @@ namespace ConstructApp.Controllers
             {
                 dbContext.Projects.Remove(project);
                 await dbContext.SaveChangesAsync();
+
                 TempData["success"] = "Project deleted successfully";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData["erro"] = $"An error occurred while deleting the project: {ex.Message}.";
+                TempData["error"] = $"An error occurred while deleting the project: {ex.Message}.";
                 return RedirectToAction(nameof(Index));
             }
         }

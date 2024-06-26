@@ -4,11 +4,12 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 namespace ConstructApp.Services
 {
-    public class MailService : IMailService
+    public class MailService : IMailService, IEmailSender
     {
         private readonly MailSettings _mailSettings;
         public MailService(IOptions<MailSettings> mailSettings)
@@ -59,5 +60,15 @@ namespace ConstructApp.Services
             }
         }
 
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            var mailRequest = new MailRequest
+            {
+                ToEmail = email,
+                Subject = subject,
+                Body = htmlMessage
+            };
+            await SendEmailAsync(mailRequest);
+        }
     }
 }

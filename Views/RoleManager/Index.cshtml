@@ -30,27 +30,37 @@
                             <td>@role.Name</td>
                             <td>
                                 <div class="d-flex align-items-center" aria-label="Role Actions">
-                                    <div class="mr-2">
-                                        <a href="@Url.Action("Index", "Permission", new { roleId = role.Id })" class="btn btn-info btn-sm">
-                                            <i class="fas fa-tasks"></i>
-                                        </a>
-                                    </div>
-                                    <div class="mr-2">
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editRoleModal_@role.Id">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </div>
-                              
-                                    <div>
-                                        <form method="post" asp-action="DeleteRole" asp-controller="RoleManager"
-                                              data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
-                                              data-confirm-type="warning">
-                                            <input type="hidden" name="roleId" value="@role.Id" />
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-trash"></i>
+                                   
+                                        <div class="mr-2">
+                                            <a href="@Url.Action("Index", "Permission", new { roleId = role.Id })" class="btn btn-info btn-sm">
+                                                <i class="fas fa-tasks"></i>
+                                            </a>
+                                        </div>
+                                    
+
+                                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.Edit).Result.Succeeded)
+                                    {
+                                        <div class="mr-2">
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editRoleModal_@role.Id">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                        </form>
-                                    </div>
+                                        </div>
+                                    }
+                                    @if (AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.Delete).Result.Succeeded)
+                                    {
+                                        <div>
+                                            <form method="post" asp-action="DeleteRole" asp-controller="RoleManager"
+                                                  data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
+                                                  data-confirm-type="warning">
+                                                <input type="hidden" name="roleId" value="@role.Id" />
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    }
+                              
                                 </div>
                             </td>
                         </tr>
@@ -121,3 +131,5 @@
         });
     </script>
 }
+
+

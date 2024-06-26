@@ -85,20 +85,33 @@ namespace ConstructApp.Controllers
             if (user == null)
             {
                 return View();
-            }
-            var roles = await _userManager.GetRolesAsync(user);
-            var result = await _userManager.RemoveFromRolesAsync(user, roles);
+            } 
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var selectedRoles = model.Where(x => x.Selected).Select(y => y.RoleName).ToList();
+
+            var result = await _userManager.RemoveFromRolesAsync(user, currentRoles);
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Cannot remove user existing roles");
                 return View(model);
             }
-            result = await _userManager.AddToRolesAsync(user, model.Where(x => x.Selected).Select(y => y.RoleName));
+            result = await _userManager.AddToRolesAsync(user, selectedRoles);
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Cannot add selected roles to user");
                 return View(model);
             }
+
+            if (!currentRoles.Except(selectedRoles).Any() && !selectedRoles.Except(currentRoles).Any())
+            {
+                TempData["info"] = $"You did not add or remove roles for {user.Email}.";
+            }
+            else
+            {
+                TempData["success"] = $"Role is successfully added or removed to {user.UserName}";
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -138,11 +151,13 @@ namespace ConstructApp.Controllers
                     if (result.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(user, model.Role);
-                        await mailService.SendEmailAsync(new MailRequest
+                        try
                         {
-                            ToEmail = user.Email,
-                            Subject = "Welcome to Aidan Construction: Your Generated Password",
-                            Body = $@"<!DOCTYPE html>
+                            await mailService.SendEmailAsync(new MailRequest
+                            {
+                                ToEmail = user.Email,
+                                Subject = "Welcome to Aidan Construction: Your Generated Password",
+                                Body = $@"<!DOCTYPE html>
                                         <html lang=""en"">
                                         <head>
                                             <meta charset=""UTF-8"">
@@ -199,9 +214,15 @@ namespace ConstructApp.Controllers
                                             </div>
                                         </body>
                                         </html>"
-                        });
+                            });
+                            TempData["success"] = "User registered successfully and welcome email sent.";
 
+                        }
+                        catch (Exception)
+                        {
 
+                            TempData["error"] = "User registered successfully but failed to send welcome email.";
+                        }
                         return RedirectToAction("Index");
 
                     }

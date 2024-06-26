@@ -1,0 +1,34 @@
+﻿@model List<Notification>
+
+@{
+    ViewBag.Title = "All Notifications";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Notifications</h6>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            @foreach (var notification in Model)
+            {
+                <a class="list-group-item list-group-item-action" href="@Url.Action("Single", "Notification", new { id = notification.Id })">
+                    <div class="d-flex w-100 justify-content-between">
+                        @if (notification.ApplicationUser?.ProfileImage != null && notification.ApplicationUser.ProfileImage.Length > 0)
+                        {
+                            var base64Image = Convert.ToBase64String(notification.ApplicationUser.ProfileImage);
+                            <img src="data:image/*;base64,@base64Image" alt="Sender Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
+                        }
+                        else
+                        {
+                            <img src="~/img/undraw_profile.svg" alt="Default Image" class="img-profile rounded-circle" style="width: 70px; height: 70px;">
+                        }
+                        <h5 class="mb-1">@notification.ApplicationUser?.UserName</h5>
+                        <small>@notification.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
+                    </div>
+                    <p class="mb-1">@notification.Message</p>
+                </a>
+            }
+        </div>
+    </div>
+</div>

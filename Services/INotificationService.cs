@@ -2,7 +2,7 @@
 {
     public interface INotificationService
     {
-        void SendNotification(int expenseId);
+        void SendNotification(int expenseId, IHttpContextAccessor httpContextAccessor);
 
     }
 }

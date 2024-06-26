@@ -32,7 +32,12 @@ namespace ConstructApp.Controllers
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectMaterialPermissions), roleId);
 
                 var role = await _roleManager.FindByIdAsync(roleId);
+                if (role is null)
+                {
+                    TempData["error"] = "Role not found.";
+                }
                 model.RoleId = roleId;
+                model.RoleName = role.Name;
                 var claims = await _roleManager.GetClaimsAsync(role);
                 var allClaimValues = allPermissions.Select(a => a.Value).ToList();
                 var roleClaimValues = claims.Select(a => a.Value).ToList();
@@ -45,10 +50,10 @@ namespace ConstructApp.Controllers
                     }
                 }
                 model.RoleClaims = allPermissions;
-                TempData["success"] = "Permission(s) added successfully";
-
                 return View(model);
+
             }
+
             return RedirectToAction("Index", "ErrorPermission");
         }
         public async Task<IActionResult> Update(PermissionVM model)
@@ -64,6 +69,8 @@ namespace ConstructApp.Controllers
             {
                 await _roleManager.AddPermissionClaims(role, claim.Value);
             }
+
+            TempData["success"] = "Permission(s) updated successfully";
             return RedirectToAction("Index", new { roleId = model.RoleId });
         }
     }

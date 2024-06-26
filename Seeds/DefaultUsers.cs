@@ -2,6 +2,7 @@
 using ConstructApp.Data;
 using ConstructApp.Helpers;
 using ConstructApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Security.Claims;
@@ -9,7 +10,7 @@ using System.Security.Claims;
 
 namespace ConstructApp.Seeds
 {
-
+    [Authorize(Roles = "Admin")]
     public static class DefaultUsers
     {
         public static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)

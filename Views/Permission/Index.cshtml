@@ -6,8 +6,10 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Permissions</h6>
+
     </div>
     <div class="card-body">
+        <p>Add/Remove Permissions for <strong><u>@Model.RoleName</u></strong> Role</p>
         <form asp-controller="permission" method="post" asp-action="Update" class="d-inline">
             <input asp-for="@Model.RoleId" type="hidden" />
             <table class="table table-striped" id="permissionTable">

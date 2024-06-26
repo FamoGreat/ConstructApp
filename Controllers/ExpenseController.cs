@@ -20,13 +20,16 @@ namespace ConstructApp.Controllers
         private readonly ApplicationDbContext dbContext;
         private readonly INotificationService _notificationService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager)
+
+        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             dbContext = _dbContext;
             _notificationService = _notification;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         public IActionResult Index()
         {
@@ -105,7 +108,7 @@ namespace ConstructApp.Controllers
 
 
                     dbContext.SaveChanges();
-                    _notificationService.SendNotification(expenseVM.Expense.Id);
+                    _notificationService.SendNotification(expenseVM.Expense.Id, _httpContextAccessor);
                     TempData["success"] = "Expenses added successfully";
                     return RedirectToAction("Index", "Expense");
                 }

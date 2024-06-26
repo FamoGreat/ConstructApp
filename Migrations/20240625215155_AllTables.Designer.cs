@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240505171234_UpdateExpense")]
-    partial class UpdateExpense
+    [Migration("20240625215155_AllTables")]
+    partial class AllTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,9 +36,6 @@ namespace ConstructApp.Migrations
                     b.Property<DateTime>("ApprovalDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ApprovalStatus")
-                        .HasColumnType("int");
-
                     b.Property<string>("ApproverId")
                         .HasColumnType("nvarchar(450)");
 
@@ -53,7 +50,8 @@ namespace ConstructApp.Migrations
 
                     b.HasIndex("ApproverId");
 
-                    b.HasIndex("ExpenseId");
+                    b.HasIndex("ExpenseId")
+                        .IsUnique();
 
                     b.ToTable("Approvals");
                 });
@@ -462,8 +460,8 @@ namespace ConstructApp.Migrations
                         .HasForeignKey("ApproverId");
 
                     b.HasOne("ConstructApp.Models.Expense", "Expense")
-                        .WithMany("Approval")
-                        .HasForeignKey("ExpenseId")
+                        .WithOne("Approval")
+                        .HasForeignKey("Approval", "ExpenseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -575,7 +573,8 @@ namespace ConstructApp.Migrations
 
             modelBuilder.Entity("ConstructApp.Models.Expense", b =>
                 {
-                    b.Navigation("Approval");
+                    b.Navigation("Approval")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ConstructApp.Models.Project", b =>

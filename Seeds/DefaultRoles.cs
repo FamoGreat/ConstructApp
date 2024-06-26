@@ -1,9 +1,11 @@
 ﻿using ConstructApp.Models;
 using Microsoft.AspNetCore.Identity;
 using ConstructApp.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConstructApp.Seeds
 {
+    [Authorize(Roles = "Admin")]
     public static class DefaultRoles
     {
         public static async Task SeedRolesAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
