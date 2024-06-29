@@ -1,0 +1,31 @@
+﻿@model ExpenseVM
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Expenses Graphs</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="ShowExpenseChart" asp-controller="Expense" method="get">
+            <div class="form-group">
+                <label for="projectId">Select Project:</label>
+                <select asp-for="Expense.ProjectId" class="form-control" id="projectId" name="projectId">
+                    <option value="">Select a project...</option>
+                    @foreach (var project in Model.ProjectList)
+                    {
+                        <option value="@project.Value">@project.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chartType">Select Chart Type:</label>
+                <select asp-for="ChartType" class="form-control" id="chartType" name="chartType">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Show Chart</button>
+        </form>
+
+    </div>
+</div>

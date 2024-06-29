@@ -1,4 +1,4 @@
-﻿@model ExpenseVM
+﻿@model ExpenseListVM
 
 <partial name="_Notification" />
 
@@ -6,91 +6,164 @@
     <div class="row">
         <div class="col-sm-12 col-md-6 mb-2 mb-md-0">
             <p>
-                <a class="btn btn-primary" asp-action="Create" asp-controller="Expense"><i class="fas fa-plus"></i> Add Expense</a>
+                <a class="btn btn-primary" asp-action="Create" asp-controller="Expense">Add Expense Request</a>
             </p>
         </div>
     </div>
 </div>
 
-<div class="form-group">
-    <input asp-for="Expense.ProjectId" class="form-label" hidden/>
-    <select id="projectSelect" asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control">
-        <option disabled selected>-- Select Project --</option>
-    </select>
-    <span asp-validation-for="Expense.ProjectId" class="text-danger"></span>
-</div>
-
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">List of Expenses</h6>
+        <h6 class="m-0 font-weight-bold text-primary">List of my Expenses Requests</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
             <table id="dataTable" class="table table-bordered" width="100%" cellspacing="0">
                 <thead>
                     <tr>
+                        <th>#</th>
+                        <th>Project Name</th>
                         <th>Expense Type</th>
                         <th>Amount</th>
                         <th>Created By</th>
                         <th>Date</th>
                         <th>Status</th>
+                        <th>Description</th>
+                        <th>Document</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Expenses will be dynamically added here -->
+                    @foreach (var expense in Model.Expenses)
+                    {
+                        <tr>
+                            <td>@(Model.Expenses.IndexOf(expense) + 1)</td>
+                            <td>@expense.Project?.ProjectName</td>
+                            <td>@expense.ExpenseType?.Name</td>
+                            <td>@expense.ExpenseAmount</td>
+                            <td>@expense.CreatedBy</td>
+                            <td>@expense.CreatedDate.ToString("MM/dd/yyyy")</td>
+                            <td>@expense.ApprovalStatus</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#descriptionModal" data-description="@expense.Description">
+                                    View
+                                </button>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(expense.SupportiveDocumentPath))
+                                {
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#documentModal_@expense.Id">
+                                        View
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span>No Document</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <a href="@Url.Action("Edit", "Expense", new { id = expense.Id })" class="m-2 btn btn-sm btn-primary">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-edit mr-1"></i>
+                                        </div>
+                                    </a>
+                                    <a onclick="confirmDelete(@expense.Id)" class="m-2 btn btn-sm btn-danger">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-trash-alt mr-1"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Model.Expenses.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center">No request found</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
+<!-- Modal for viewing description -->
+<div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="descriptionModalLabel">Expense Description</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="descriptionContent"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for viewing document -->
+@foreach (var expense in Model.Expenses)
+{
+    @if (!string.IsNullOrEmpty(expense.SupportiveDocumentPath))
+    {
+        <div class="modal fade" id="documentModal_@expense.Id" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel_@expense.Id" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="documentModalLabel_@expense.Id">Supportive Document</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @if (expense.SupportiveDocumentPath.EndsWith(".pdf"))
+                        {
+                            <embed src="~/supportive_documents/@expense.SupportiveDocumentPath" type="application/pdf" width="100%" height="600px" />
+                        }
+                        else if (expense.SupportiveDocumentPath.EndsWith(".jpg") || expense.SupportiveDocumentPath.EndsWith(".jpeg") || expense.SupportiveDocumentPath.EndsWith(".png"))
+                        {
+                            <img src="~/supportive_documents/@expense.SupportiveDocumentPath" class="img-fluid" alt="Supportive Document" />
+                        }
+                        else
+                        {
+                            <p>Unsupported document format</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
 @section Scripts {
     <script>
         $(document).ready(function () {
             var table = $('#dataTable').DataTable({
-                paging: false,
-                searching: false
+                paging: true,
+                searching: true
             });
 
-            $(document).on('change', '#projectSelect', function () {
-                var projectId = $(this).val();
-                if (projectId) {
-                    $.ajax({
-                        url: '/Expense/GetExpenses',
-                        type: 'GET',
-                        data: { projectId: projectId },
-                        success: function (data) {
-                            table.clear().draw();
-                            $.each(data, function (index, item) {
-                                table.row.add([
-                                    item.expenseType,
-                                    item.amount,
-                                    item.createdBy,
-                                    item.date,
-                                    item.approvalStatus,
-                                    `<div class="d-flex">
-                                        <a href="/Expense/Edit?id=${item.id}" class="m-2 btn btn-sm btn-primary">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-edit mr-1"></i>
-                                            </div>
-                                        </a>
-                                        <a onclick="confirmDelete(${item.id})" class="m-2 btn btn-sm btn-danger">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-trash-alt mr-1"></i>
-                                            </div>
-                                        </a>
-                                    </div>`
+            $('#expenseSearch').on('keyup', function () {
+                table.search(this.value).draw();
+            });
 
-                                           
-                                ]).draw();
-                            });
-                        },
-                        error: function () {
-                            toastr.error('Failed to fetch expenses.');
-                        }
-                    });
-                }
+            $('#descriptionModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var description = button.data('description');
+                var modal = $(this);
+                modal.find('#descriptionContent').text(description);
             });
         });
 
@@ -111,19 +184,18 @@
                         success: function (data) {
                             if (data.success) {
                                 toastr.success(data.message);
-                                $('#dataTable').DataTable().clear().draw();
-                                // Reload expenses after successful deletion
-                                $('#projectSelect').trigger('change');
+                                $('#dataTable').DataTable().ajax.reload();
                             } else {
                                 toastr.error(data.message);
                             }
                         },
                         error: function (xhr, status, error) {
-                            toastr.error("Error occurred while deleting.");
+                            toastr.error("Error occurred while deleting: " + error);
                         }
                     });
                 }
             });
         }
+
     </script>
 }

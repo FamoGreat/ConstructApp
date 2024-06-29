@@ -31,11 +31,14 @@ namespace ConstructApp.Models
         [ValidateNever]
         public  virtual Approval Approval { get; set; }
 
+        public string? SupportiveDocumentPath { get; set; }
 
+        public string? Description { get; set; }
 
-
-
-
+        public static implicit operator Expense(List<Expense> v)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum ApprovalStatus

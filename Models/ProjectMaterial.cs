@@ -17,6 +17,9 @@ namespace ConstructApp.Models
         [Required]
         [DisplayName("Material Name")]
         public string? MaterialName { get; set; }
+        [DisplayName("Material Description")]
+
+        public string? MaterialDescription { get; set; }
 
         [Required]
         [DisplayName("Estimated Quantity")]

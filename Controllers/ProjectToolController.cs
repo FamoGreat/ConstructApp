@@ -32,7 +32,6 @@ namespace ConstructApp.Controllers
                 }
 
                 projectTool.Id = 0;
-                // Check if referenced Project exists
                 var existingProject = dbContext.Projects.FirstOrDefault(p => p.Id == projectTool.ProjectId);
 
                 if (existingProject == null)

@@ -18,11 +18,13 @@ namespace ConstructApp
                     var dbContext = services.GetRequiredService<ApplicationDbContext>();
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
                     // Seed Roles 
                     await DefaultRoles.SeedRolesAsync(userManager, roleManager);
                     // Seed Default User
                     //await DefaultUsers.SeedTechnicianUserAsync(userManager, roleManager, dbContext);
                     await DefaultUsers.SeedAdminAsync(userManager, roleManager);
+                    DefaultExpenseType.SeedExpenseType(dbContext);
                 }
                 catch (Exception ex)
                 {

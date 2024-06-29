@@ -8,4 +8,6 @@ namespace ConstructApp.Models
         [Required]
         public string? Name { get; set; }
     }
+
+
 }

@@ -153,26 +153,7 @@ namespace ConstructApp.Controllers
                 existingMaterial.EstimatedQuantity = updatedProjectMaterial.ProjectMaterial.EstimatedQuantity;
                 existingMaterial.EstimatedCost = updatedProjectMaterial.ProjectMaterial.EstimatedCost;
                 existingMaterial.MaterialUOM = updatedProjectMaterial.ProjectMaterial.MaterialUOM;
-                // Update ProjectName if necessary
-                //if (existingMaterial.ProjectId != updatedProjectMaterial.ProjectMaterial.ProjectId)
-                //{
-                //    var project = dbContext.Projects.FirstOrDefault(p => p.Id == updatedProjectMaterial.ProjectMaterial.ProjectId);
-                //    if (project != null)
-                //    {
-                //        if (existingMaterial.Project == null)
-                //        {
-                //            existingMaterial.Project = new Project(); 
-                //        }
-
-                //        existingMaterial.Project.ProjectName = project.ProjectName;
-
-                //        if (User.Identity.IsAuthenticated)
-                //        {
-                //            existingMaterial.Project.CreatedBy = User.Identity.Name;
-                //        }
-                //    }
-                //}
-
+                
                 dbContext.SaveChanges();
                 TempData["success"] = "Project Material updated successfully";
 

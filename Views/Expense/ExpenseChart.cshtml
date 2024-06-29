@@ -1,0 +1,101 @@
+﻿@model Dictionary<string, decimal>
+
+@{
+    ViewData["Title"] = $"{ViewBag.ChartType} Expense Chart";
+    var chartLabels = Model.Keys.ToList();
+    var chartData = Model.Values.ToList();
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">@ViewData["Title"]</h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-bar">
+            <canvas id="myBarChart"></canvas>
+        </div>
+        <hr>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Function to format numbers
+        function number_format(number, decimals, dec_point, thousands_sep) {
+            number = (number + '').replace(',', '').replace(' ', '');
+            var n = !isFinite(+number) ? 0 : +number,
+                prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                s = '',
+                toFixedFix = function (n, prec) {
+                    var k = Math.pow(10, prec);
+                    return '' + Math.round(n * k) / k;
+                };
+            s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+            if (s[0].length > 3) {
+                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+            }
+            if ((s[1] || '').length < prec) {
+                s[1] = s[1] || '';
+                s[1] += new Array(prec - s[1].length + 1).join('0');
+            }
+            return s.join(dec);
+        }
+
+        // Get chart data from Razor model
+        var chartLabels = @Html.Raw(Json.Serialize(chartLabels));
+        var chartData = @Html.Raw(Json.Serialize(chartData));
+
+        // Bar Chart Configuration
+        var ctx = document.getElementById("myBarChart").getContext('2d');
+        var myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Expense',
+                    backgroundColor: '#4e73df',
+                    hoverBackgroundColor: '#2e59d9',
+                    borderColor: '#4e73df',
+                    data: chartData
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: { display: false },
+                tooltips: {
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                            var value = number_format(tooltipItem.yLabel, 2, '.', ',');
+                            return label + ': TZS ' + value;
+                        }
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: { maxTicksLimit: 6 },
+                        gridLines: { display: false }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            callback: function (value) {
+                                return 'Tsh ' + number_format(value, 2, '.', ',');
+                            }
+                        },
+                        gridLines: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            zeroLineColor: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+}

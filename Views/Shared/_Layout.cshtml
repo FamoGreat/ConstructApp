@@ -88,9 +88,10 @@
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                      data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-action="Index" asp-controller="Expense">Expenses</a>
+                        <a class="collapse-item" asp-action="Index" asp-controller="Expense">My Request</a>
+                        <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
+                            <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
                         <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
-                            <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
                     </div>
                 </div>
             </li>
@@ -374,6 +375,7 @@
     <script src="~/vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="~/js/NotificationMessage.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

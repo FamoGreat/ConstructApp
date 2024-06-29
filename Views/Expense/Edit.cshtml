@@ -2,42 +2,63 @@
 
 <partial name="_Notification" />
 
-<div class="col-12 grid-margin stretch-card">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title text-center">Edit Expense</h4>
-            <form method="post" class="forms-sample">
-                <input asp-for="Expense.Id" type="hidden" />
-                <div class="form-group">
-                    <label asp-for="Expense.ProjectId" class="form-label"></label>
-                    <select asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select" disabled>
-                        <option disabled selected>-- Select Project --</option>
+<div class="card shadow mb-4">
+    <div class="card-header text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Edit Expense</h4>
+    </div>
+    <div class="card-body">
+        <form id="expenseForm" method="post" class="forms-sample" enctype="multipart/form-data" asp-action="Edit">
+
+            <input asp-for="Expense.Id" type="hidden" />
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="Expense.ProjectId" class="form-label">Project Name</label>
+                    <select id="projectSelect" asp-for="Expense.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select">
+                        <option disabled selected>Select Project</option>
                     </select>
                     <span asp-validation-for="Expense.ProjectId" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Expense.ExpenseTypeId" class="form-label"></label>
-                    <select asp-for="Expense.ExpenseTypeId" asp-items="@Model.ExpenseTypeList" class="form-control form-select">
-                        <option disabled selected>-- Select Expense Type --</option>
+                <div class="col-sm-6">
+                    <label asp-for="Expense.ExpenseTypeId" class="form-label">Expense Type</label>
+                    <select id="expenseTypeSelect" asp-for="Expense.ExpenseTypeId" asp-items="@Model.ExpenseTypeList" class="form-control form-select">
+                        <option disabled selected>Select Expense Type</option>
                     </select>
                     <span asp-validation-for="Expense.ExpenseTypeId" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Expense.ExpenseAmount" class="form-label">Amount</label>
-                    <input asp-for="Expense.ExpenseAmount" type="text" class="form-control" readonly> 
-                    <span asp-validation-for="Expense.ExpenseAmount" class="text-danger"></span>
-                </div>
-                <div class="form-group">
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
                     <label asp-for="Expense.CreatedBy" class="form-label">Created By</label>
-                    <input asp-for="Expense.CreatedBy" type="text" class="form-control" readonly>
+                    <input id="createdByInput" asp-for="Expense.CreatedBy" type="text" class="form-control" readonly>
+                    <span asp-validation-for="Expense.CreatedBy" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+                <div class="col-sm-6">
                     <label asp-for="Expense.CreatedDate" class="form-label">Created Date</label>
-                    <input asp-for="Expense.CreatedDate" type="date" class="form-control" >
+                    <input id="createdDateInput" asp-for="Expense.CreatedDate" type="date" class="form-control">
+                    <span asp-validation-for="Expense.CreatedDate" class="text-danger"></span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i>Save Changes</button>
-                <a href="@Url.Action("Index", "Expense")" class="btn btn-secondary">Back to List</a>
-            </form>
-        </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="SupportiveDocument">Supportive Document</label>
+                    <input asp-for="SupportiveDocument" type="file" class="form-control" />
+                    <span asp-validation-for="SupportiveDocument" class="text-danger"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Expense.Description" class="form-label">Description</label>
+                    <textarea asp-for="Expense.Description" class="form-control"></textarea>
+                    <span asp-validation-for="Expense.Description" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a class="btn btn-secondary" asp-action="Index" asp-controller="Expense"><i class="fas fa-arrow-left"></i> Back To List</a>
+            </div>
+
+        </form>
     </div>
 </div>

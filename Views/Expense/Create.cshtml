@@ -4,10 +4,10 @@
 
 <div class="card shadow mb-4">
     <div class="card-header  text-center">
-        <h4 class="m-0 font-weight-bold text-primary">Expense Form</h4>
+        <h4 class="m-0 font-weight-bold text-primary">Expense Request Form</h4>
     </div>
     <div class="card-body">
-            <form id="expenseForm" method="post" class="forms-sample">
+        <form id="expenseForm" method="post" class="forms-sample" enctype="multipart/form-data" asp-action="Create">
                 <div class="form-group row">
                     <div class="col-sm-6 mb-3 mb-sm-0">
                         <label asp-for="Expense.ProjectId" class="form-label"></label>
@@ -37,6 +37,20 @@
                         <span asp-validation-for="Expense.CreatedDate" class="text-danger"></span>
                     </div>
                 </div>
+
+                <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="SupportiveDocument"></label>
+                    <input asp-for="SupportiveDocument" type="file" class="form-control" />
+                    <span asp-validation-for="SupportiveDocument" class="text-danger"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Expense.Description"></label>
+                    <textarea asp-for="Expense.Description" class="form-control"></textarea>
+                    <span asp-validation-for="Expense.Description" class="text-danger"></span>
+                </div>
+                </div>
+            
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
                     <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Expense"><i class="fas fa-arrow-left"></i> Back To List</a>

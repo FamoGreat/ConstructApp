@@ -21,17 +21,32 @@ namespace ConstructApp.Controllers
         private readonly INotificationService _notificationService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
 
 
-        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
+        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment environment)
         {
             dbContext = _dbContext;
             _notificationService = _notification;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            webHostEnvironment = environment;
         }
         public IActionResult Index()
+        {
+            var expenses = dbContext.Expenses
+                .Include(e => e.ExpenseType)
+                .Include(e => e.Project)
+                .ToList();
+            var viewModel = new ExpenseListVM
+            {
+                Expenses = expenses
+            };
+            return View(viewModel);
+        }
+
+        public IActionResult ExpenseGraph()
         {
             ExpenseVM expenseVM = new()
             {
@@ -39,13 +54,11 @@ namespace ConstructApp.Controllers
                 {
                     Text = u.ProjectName,
                     Value = u.Id.ToString()
-                })
+                }),
+                Expense = new Expense(),
+                ChartType = "weekly"
             };
-
-
-
             return View(expenseVM);
-
         }
 
         public async Task<IActionResult> Create()
@@ -92,6 +105,22 @@ namespace ConstructApp.Controllers
 
                     if (TryValidateModel(expenseVM.Expense))
                     {
+                        if (expenseVM.SupportiveDocument != null)
+                        {
+                            string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
+                            if (!Directory.Exists(uploadsFolder))
+                            {
+                                Directory.CreateDirectory(uploadsFolder);
+                            }
+                            string uniqueFileName = Guid.NewGuid().ToString() +"_" + expenseVM.SupportiveDocument.FileName;
+                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                            //expenseVM.SupportiveDocument.CopyTo(new FileStream(filePath, FileMode.Create));
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                expenseVM.SupportiveDocument.CopyTo(fileStream);
+                            }
+                            expenseVM.Expense.SupportiveDocumentPath = uniqueFileName;
+                        }
                         if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
                         {
                             CalculateExpenseAmount(expenseVM);
@@ -165,7 +194,7 @@ namespace ConstructApp.Controllers
         private bool IsMaterialExpense(int expenseTypeId)
         {
             var materialExpenseTypeIds = dbContext.ExpenseTypes
-                 .Where(e => e.Name == "Material")
+                 .Where(e => e.Name == "Materials Costs")
                  .Select(e => e.Id)
                  .ToList();
 
@@ -183,7 +212,10 @@ namespace ConstructApp.Controllers
                     return BadRequest(new { success = false, message = "ID parameter is missing." });
                 }
 
-                var expense = dbContext.Expenses.FirstOrDefault(e => e.Id == id);
+                var expense = dbContext.Expenses
+                    .Include(e => e.Project)
+                    .Include(e => e.ExpenseType)
+                    .FirstOrDefault(e => e.Id == id);
                 if (expense == null)
                 {
                     return NotFound(new { success = false, message = $"Expense with ID {id} not found." });
@@ -221,6 +253,51 @@ namespace ConstructApp.Controllers
             }
             catch (Exception ex)
             {
+                TempData["error"] = "An error occurred: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(ExpenseVM expenseVM)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var expense = await dbContext.Expenses.FindAsync(expenseVM.Expense.Id);
+                    if (expense == null) 
+                    {
+                        return NotFound();
+                    }
+                    expense.ProjectId = expenseVM.ProjectId;
+                    expense.ExpenseTypeId = expenseVM.Expense.ExpenseTypeId;
+                    expense.CreatedDate = expenseVM.Expense.CreatedDate;
+
+                    if (expenseVM.SupportiveDocument != null && expenseVM.SupportiveDocument.Length > 0)
+                    {
+                        string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
+                        if (!Directory.Exists(uploadsFolder))
+                        {
+                            Directory.CreateDirectory(uploadsFolder);
+                        }
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + expenseVM.SupportiveDocument.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            expenseVM.SupportiveDocument.CopyTo(fileStream);
+                        }
+                        expenseVM.Expense.SupportiveDocumentPath = uniqueFileName;
+                    }
+                    dbContext.Update(expense);
+                    await dbContext.SaveChangesAsync();
+
+                }
+
+                return View(expenseVM);
+            }
+            catch (Exception ex)
+            {
+
                 TempData["error"] = "An error occurred: " + ex.Message;
                 return RedirectToAction("Index");
             }
@@ -272,7 +349,7 @@ namespace ConstructApp.Controllers
                 var expense = dbContext.Expenses.Find(id);
                 if (expense == null)
                 {
-                    return NotFound();
+                    return NotFound(new { success = false, message = "Expense not found." });
                 }
 
                 dbContext.Expenses.Remove(expense);
@@ -282,9 +359,10 @@ namespace ConstructApp.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An error occurred while deleting the expense: " + ex.Message });
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting the expense.", error = ex.Message });
             }
         }
+
 
         [HttpGet]
         public IActionResult GetPendingExpensesCount()
@@ -300,12 +378,67 @@ namespace ConstructApp.Controllers
             }
         }
 
+        [HttpGet("Expense/ShowExpenseChart")]
+        public async Task<IActionResult> ShowExpenseChart(int projectId, string chartType)
+        {
+            try
+            {
+                var project = await dbContext.Projects.FindAsync(projectId);
+                if (project == null)
+                {
+                    return NotFound($"Project with ID {projectId} not found.");
+                }
 
-        #endregion
+                switch (chartType)
+                {
+                    case "daily":
+                        ViewBag.ChartType = "Daily";
+                        break;
+                    case "weekly":
+                        ViewBag.ChartType = "Weekly";
+                        break;
+                    case "monthly":
+                        ViewBag.ChartType = "Monthly";
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid chart type.");
+                }
+
+                DateTime startDate;
+                switch (chartType)
+                {
+                    case "daily":
+                        startDate = DateTime.Today.AddDays(-1);
+                        break;
+                    case "weekly":
+                        startDate = DateTime.Today.AddDays(-7);
+                        break;
+                    case "monthly":
+                        startDate = DateTime.Today.AddMonths(-1);
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid chart type.");
+                }
+
+                var expenses = await dbContext.Expenses
+                    .Where(e => e.ProjectId == projectId && e.CreatedDate >= startDate && e.ApprovalStatus == ApprovalStatus.Approved)
+                    .Include(e => e.ExpenseType)
+                    .GroupBy(e => e.ExpenseType.Name)
+                    .Select(g => new { ExpenseType = g.Key, Total = g.Sum(e => e.ExpenseAmount) })
+                    .ToDictionaryAsync(g => g.ExpenseType, g => g.Total);
+
+                return View("ExpenseChart", expenses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
     }
-
-
+    #endregion
 
 }
+
 

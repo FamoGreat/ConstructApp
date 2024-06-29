@@ -21,7 +21,12 @@ namespace ConstructApp.Controllers
                            .Include(e => e.Project)
                            .Include(e => e.ExpenseType)
                            .ToList();
-            return View(expenses);
+
+            var expenseListVM = new ExpenseListVM
+            {
+                Expenses = expenses
+            };
+            return View(expenseListVM);
         }
 
         [HttpPost]
