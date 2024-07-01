@@ -18,17 +18,15 @@ namespace ConstructApp.Controllers
     public class ExpenseController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly INotificationService _notificationService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHostEnvironment webHostEnvironment;
 
 
 
-        public ExpenseController(ApplicationDbContext _dbContext, INotificationService _notification, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment environment)
+        public ExpenseController(ApplicationDbContext _dbContext,  UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment environment)
         {
             dbContext = _dbContext;
-            _notificationService = _notification;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             webHostEnvironment = environment;
@@ -102,49 +100,44 @@ namespace ConstructApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-
-                    if (TryValidateModel(expenseVM.Expense))
+                    if (expenseVM.SupportiveDocument != null)
                     {
-                        if (expenseVM.SupportiveDocument != null)
+                        // Handle supportive document upload
+                        string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
+                        if (!Directory.Exists(uploadsFolder))
                         {
-                            string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
-                            if (!Directory.Exists(uploadsFolder))
-                            {
-                                Directory.CreateDirectory(uploadsFolder);
-                            }
-                            string uniqueFileName = Guid.NewGuid().ToString() +"_" + expenseVM.SupportiveDocument.FileName;
-                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                            //expenseVM.SupportiveDocument.CopyTo(new FileStream(filePath, FileMode.Create));
-                            using (var fileStream = new FileStream(filePath, FileMode.Create))
-                            {
-                                expenseVM.SupportiveDocument.CopyTo(fileStream);
-                            }
-                            expenseVM.Expense.SupportiveDocumentPath = uniqueFileName;
+                            Directory.CreateDirectory(uploadsFolder);
                         }
-                        if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + expenseVM.SupportiveDocument.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
-                            CalculateExpenseAmount(expenseVM);
+                            expenseVM.SupportiveDocument.CopyTo(fileStream);
                         }
-
-                        dbContext.Expenses.Add(expenseVM.Expense);
-                    }
-                    else
-                    {
-                        TempData["error"] = "Validation failed for one or more expenses. Please check the provided data.";
-                        PopulateDropdowns(expenseVM);
-                        return BadRequest(TempData["error"]);
+                        expenseVM.Expense.SupportiveDocumentPath = uniqueFileName;
                     }
 
+                    // Calculate expense amount based on expense type
+                    if (IsMaterialExpense(expenseVM.Expense.ExpenseTypeId))
+                    {
+                        CalculateMaterialExpenseAmount(expenseVM);
+                    }
+                    else if (IsEquipmentExpense(expenseVM.Expense.ExpenseTypeId))
+                    {
+                        CalculateEquipmentExpenseAmount(expenseVM);
+                    }
 
+                    // Add expense to DbContext
+                    dbContext.Expenses.Add(expenseVM.Expense);
                     dbContext.SaveChanges();
-                    _notificationService.SendNotification(expenseVM.Expense.Id, _httpContextAccessor);
-                    TempData["success"] = "Expenses added successfully";
+
+                    TempData["success"] = "Expense added successfully";
                     return RedirectToAction("Index", "Expense");
                 }
                 else
                 {
                     TempData["error"] = "Validation failed. Please check the provided data.";
-
+                    PopulateDropdowns(expenseVM); 
                     return View(expenseVM);
                 }
             }
@@ -158,11 +151,34 @@ namespace ConstructApp.Controllers
                 TempData["error"] = "An unexpected error occurred: " + ex.Message;
                 return View(expenseVM);
             }
-
-
         }
 
-        private void CalculateExpenseAmount(ExpenseVM expenseVM)
+
+        //private void UpdateTotalExpenses(int projectId)
+        //{
+        //    var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+        //    if (project != null)
+        //    {
+        //        // Calculate total material cost
+        //        decimal totalMaterialCost = dbContext.ProjectMaterials
+        //            .Where(pm => pm.ProjectId == projectId)
+        //            .Sum(pm => pm.EstimatedCost * pm.EstimatedQuantity);
+
+        //        // Calculate total tool cost
+        //        decimal totalToolCost = dbContext.ProjectTools
+        //            .Where(pt => pt.ProjectId == projectId)
+        //            .Sum(pt => pt.ToolCost * pt.ToolsQuantity);
+
+        //        // Update project's total expenses
+        //        project.TotalMaterialExpense = totalMaterialCost;
+        //        project.TotalToolExpense = totalToolCost;
+
+        //        // Save changes to the database
+        //        dbContext.SaveChanges();
+        //    }
+        //}
+
+        private void CalculateMaterialExpenseAmount(ExpenseVM expenseVM)
         {
             if (expenseVM.Expense.ProjectId != 0)
             {
@@ -171,11 +187,24 @@ namespace ConstructApp.Controllers
                     .Where(pm => pm.ProjectId == projectId)
                     .ToList();
                 decimal totalMaterialCost = projectMaterials.Sum(pm => pm.EstimatedCost * pm.EstimatedQuantity);
+
                 expenseVM.Expense.ExpenseAmount = totalMaterialCost;
             }
-            // You can add additional logic for calculating expense amount for non-material expenses here if needed
         }
 
+        private void CalculateEquipmentExpenseAmount(ExpenseVM expenseVM)
+        {
+            if (expenseVM.Expense.ProjectId != 0)
+            {
+                var projectId = expenseVM.Expense.ProjectId;
+                var projectTools = dbContext.ProjectTools
+                    .Where(pt => pt.ProjectId == projectId)
+                    .ToList();
+                decimal totalToolCost = projectTools.Sum(pt => pt.ToolCost * pt.ToolsQuantity);
+
+                expenseVM.Expense.ExpenseAmount = totalToolCost;
+            }
+        }
         private void PopulateDropdowns(ExpenseVM expenseVM)
         {
             expenseVM.ProjectList = dbContext.Projects.Select(u => new SelectListItem
@@ -201,6 +230,15 @@ namespace ConstructApp.Controllers
             return materialExpenseTypeIds.Contains(expenseTypeId);
         }
 
+        private bool IsEquipmentExpense(int expenseTypeId)
+        {
+            var materialExpenseTypeIds = dbContext.ExpenseTypes
+                 .Where(e => e.Name == "Equipment Costs")
+                 .Select(e => e.Id)
+                 .ToList();
+
+            return materialExpenseTypeIds.Contains(expenseTypeId);
+        }
 
 
         public async Task<IActionResult> Edit(int id)
@@ -258,50 +296,106 @@ namespace ConstructApp.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(ExpenseVM expenseVM)
+        public IActionResult Edit(ExpenseVM expenseVM)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var expense = await dbContext.Expenses.FindAsync(expenseVM.Expense.Id);
-                    if (expense == null) 
+                    var existingExpense = dbContext.Expenses.FirstOrDefault(e => e.Id == expenseVM.Expense.Id);
+                    if (existingExpense == null)
                     {
                         return NotFound();
                     }
-                    expense.ProjectId = expenseVM.ProjectId;
-                    expense.ExpenseTypeId = expenseVM.Expense.ExpenseTypeId;
-                    expense.CreatedDate = expenseVM.Expense.CreatedDate;
 
-                    if (expenseVM.SupportiveDocument != null && expenseVM.SupportiveDocument.Length > 0)
+                    if (TryValidateModel(expenseVM.Expense))
                     {
-                        string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
-                        if (!Directory.Exists(uploadsFolder))
+                        if (expenseVM.SupportiveDocument != null)
                         {
-                            Directory.CreateDirectory(uploadsFolder);
+                            if (!string.IsNullOrEmpty(existingExpense.SupportiveDocumentPath))
+                            {
+                                string oldFilePath = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents", existingExpense.SupportiveDocumentPath);
+                                if (System.IO.File.Exists(oldFilePath))
+                                {
+                                    System.IO.File.Delete(oldFilePath);
+                                }
+                            }
+
+                            string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "supportive_documents");
+                            if (!Directory.Exists(uploadsFolder))
+                            {
+                                Directory.CreateDirectory(uploadsFolder);
+                            }
+                            string uniqueFileName = Guid.NewGuid().ToString() + "_" + expenseVM.SupportiveDocument.FileName;
+                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            {
+                                expenseVM.SupportiveDocument.CopyTo(fileStream);
+                            }
+                            existingExpense.SupportiveDocumentPath = uniqueFileName;
                         }
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + expenseVM.SupportiveDocument.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            expenseVM.SupportiveDocument.CopyTo(fileStream);
-                        }
-                        expenseVM.Expense.SupportiveDocumentPath = uniqueFileName;
+
+                        // Update basic expense properties
+                        existingExpense.ProjectId = expenseVM.Expense.ProjectId;
+                        existingExpense.ExpenseTypeId = expenseVM.Expense.ExpenseTypeId;
+                        existingExpense.CreatedBy = expenseVM.Expense.CreatedBy;
+                        existingExpense.CreatedDate = expenseVM.Expense.CreatedDate;
+                        existingExpense.Description = expenseVM.Expense.Description;
+                        existingExpense.ApprovalStatus = expenseVM.Expense.ApprovalStatus;
+
+                        // Calculate expense amount based on expense type
+                        CalculateExpenseAmount(existingExpense);
+
+                        dbContext.SaveChanges();
+                        TempData["success"] = "Expense request updated successfully";
+                        return RedirectToAction("Index", "Expense");
                     }
-                    dbContext.Update(expense);
-                    await dbContext.SaveChangesAsync();
-
+                    else
+                    {
+                        TempData["error"] = "Validation failed for one or more expenses. Please check the provided data.";
+                        PopulateDropdowns(expenseVM);
+                        return View(expenseVM);
+                    }
                 }
-
+                else
+                {
+                    TempData["error"] = "Validation failed. Please check the provided data.";
+                    return View(expenseVM);
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["error"] = "An error occurred while saving to the database: " + ex.Message;
                 return View(expenseVM);
             }
             catch (Exception ex)
             {
-
-                TempData["error"] = "An error occurred: " + ex.Message;
-                return RedirectToAction("Index");
+                TempData["error"] = "An unexpected error occurred: " + ex.Message;
+                return View(expenseVM);
             }
         }
+        private void CalculateExpenseAmount(Expense expense)
+        {
+            if (IsMaterialExpense(expense.ExpenseTypeId))
+            {
+                var projectId = expense.ProjectId;
+                var projectMaterials = dbContext.ProjectMaterials
+                    .Where(pm => pm.ProjectId == projectId)
+                    .ToList();
+                decimal totalMaterialCost = projectMaterials.Sum(pm => pm.EstimatedCost * pm.EstimatedQuantity);
+                expense.ExpenseAmount = totalMaterialCost;
+            }
+            else if (IsEquipmentExpense(expense.ExpenseTypeId))
+            {
+                var projectId = expense.ProjectId;
+                var projectTools = dbContext.ProjectTools
+                    .Where(pt => pt.ProjectId == projectId)
+                    .ToList();
+                decimal totalToolCost = projectTools.Sum(pt => pt.ToolCost * pt.ToolsQuantity);
+                expense.ExpenseAmount = totalToolCost;
+            }
+        }
+
 
         public IActionResult AllRequests()
         {

@@ -18,5 +18,27 @@ namespace ConstructApp.Seeds
             await roleManager.CreateAsync(new IdentityRole(Roles.Cashier.ToString()));
             await roleManager.CreateAsync(new IdentityRole(Roles.FinanceManager.ToString()));
         }
+
+        private static async Task SeedClaimsForAdmin(RoleManager<IdentityRole> roleManager, IdentityRole adminRole)
+        {
+            var permissions = new List<string>
+            {
+                nameof(Constants.Permissions.UserPermissions),
+                nameof(Constants.Permissions.ExpensePermissions),
+                nameof(Constants.Permissions.ApprovalPermissions),
+                nameof(Constants.Permissions.ProjectPermissions),
+                nameof(Constants.Permissions.ProjectMaterialPermissions),
+                nameof(Constants.Permissions.ProjectToolPermissions)
+            };
+
+            foreach (var module in permissions)
+            {
+                var modulePermissions = Constants.Permissions.GeneratePermissionsForModule(module);
+                foreach (var permission in modulePermissions)
+                {
+                    await roleManager.AddPermissionClaim(adminRole, permission);
+                }
+            }
+        }
     }
 }

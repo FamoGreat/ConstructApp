@@ -26,7 +26,7 @@ namespace ConstructApp.Models
         public string? CreatedBy { get; set; }
         [DisplayName("Created Date")]
         [Required]
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Today;
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
         [ValidateNever]
         public  virtual Approval Approval { get; set; }

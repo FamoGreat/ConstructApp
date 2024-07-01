@@ -53,5 +53,12 @@ namespace ConstructApp.Constants
             public const string Edit = "Permissions.ProjectMaterials.Edit";
             public const string Delete = "Permissions.ProjectMaterials.Delete";
         }
+        public static class ProjectToolPermissions
+        {
+            public const string View = "Permissions.ProjectTools.View";
+            public const string Create = "Permissions.ProjectTools.Create";
+            public const string Edit = "Permissions.ProjectTools.Edit";
+            public const string Delete = "Permissions.ProjectTools.Delete";
+        }
     }
 }

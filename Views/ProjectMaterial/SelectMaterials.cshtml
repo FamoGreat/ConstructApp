@@ -1,0 +1,67 @@
+﻿@model SelectMaterialsViewModel
+
+@{
+    ViewData["Title"] = "Select Materials";
+}
+
+<partial name="_Notification" />
+
+
+<div class="card shadow mb-4">
+    <div class="card-header text-center d-flex justify-content-between align-items-center">
+        <h4 class="m-0 font-weight-bold text-primary">Select Materials</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="SelectMaterials" method="post">
+
+            <div class="form-group">
+                <label asp-for="ProjectId" class="form-label">Select Project:</label>
+                <select id="projectSelect" asp-for="ProjectId" asp-items="@Model.ProjectList" class="form-control">
+                    <option disabled selected>Select Project</option>
+                </select>
+                <span asp-validation-for="ProjectId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="materialType">Select Material Type:</label>
+                <select class="form-control" id="materialType" name="SelectedType" asp-for="SelectedType">
+                    <option value="">-- Select Type --</option>
+                    @foreach (var type in ViewBag.MaterialTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary mt-3">Show Materials</button>
+            </div>
+        </form>
+
+        <form asp-action="AddSelectedMaterials" method="post">
+            <input type="hidden" asp-for="ProjectId" />
+            <div id="materialList" class="mt-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Material Code</th>
+                            <th>Material Name</th>
+                            <th>Unit Of Measurement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var material in Model.Materials)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="SelectedMaterialIds" value="@material.Id" />
+                                </td>
+                                <td>@material.Code</td>
+                                <td>@material.Name</td>
+                                <td>@material.UnitOfMeasurement</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Selected Materials</button>
+        </form>
+    </div>
+</div>

@@ -12,12 +12,12 @@ namespace ConstructApp.Data
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectMaterial> ProjectMaterials { get; set; }
+        public DbSet<Material> Materials { get; set; }
         public DbSet<ProjectTool> ProjectTools { get; set; }
         public DbSet<ExpenseType> ExpenseTypes { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Approval> Approvals { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

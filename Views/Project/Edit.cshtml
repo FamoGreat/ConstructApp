@@ -1,51 +1,68 @@
 ﻿@model Project
+
 <div class="card shadow mb-4">
-    <div class="card-header  text-center">
-        <h4 class="m-0 font-weight-bold text-primary">Edit Project Info</h4>
+    <div class="card-header text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Edit Project</h4>
     </div>
     <div class="card-body">
-            <form method="post" class="forms-sample">
-                <input asp-for="@Model.Id" hidden />
-                <div class="form-group">
-                    <label asp-for="ProjectName" class="p-0"></label>
-                    <input asp-for="ProjectName" class="form-control" />
+        <form method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="ProjectName" class="form-label"></label>
+                    <input asp-for="ProjectName" class="form-control" required />
                     <span asp-validation-for="ProjectName" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+                <div class="col-sm-6">
                     <label asp-for="Location" class="form-label"></label>
-                    <input asp-for="Location" type="text" class="form-control">
+                    <input asp-for="Location" class="form-control">
                     <span asp-validation-for="Location" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
                     <label asp-for="StartDate" class="form-label"></label>
                     <input asp-for="StartDate" type="date" class="form-control">
                     <span asp-validation-for="StartDate" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+                <div class="col-sm-6">
                     <label asp-for="EndDate" class="form-label"></label>
                     <input asp-for="EndDate" type="date" class="form-control">
                     <span asp-validation-for="EndDate" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
                     <label asp-for="CreatedBy" class="form-label"></label>
                     <input asp-for="CreatedBy" class="form-control" readonly>
                     <span asp-validation-for="CreatedBy" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+                <div class="col-sm-6">
                     <label asp-for="CreatedDate" class="form-label"></label>
                     <input asp-for="CreatedDate" type="date" class="form-control">
                     <span asp-validation-for="CreatedDate" class="text-danger"></span>
-                </div>
-                <div class="form-group">
+                    </div>
+                   </div> 
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
                     <label asp-for="TotalBudget" class="form-label"></label>
                     <input asp-for="TotalBudget" class="form-control">
                     <span asp-validation-for="TotalBudget" class="text-danger"></span>
                 </div>
+                <div class="col-sm-6">
+                    <label asp-for="ProjectDescription" class="form-label"></label>
+                    <textarea asp-for="ProjectDescription" class="form-control"></textarea>
+                    <span asp-validation-for="ProjectDescription" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
-
-                <a href="/ProjectMaterial/Create/@Model.Id" class="btn btn-primary"><i class="fas fa-plus"></i>  Materials</a>
-                <a href="/ProjectTool/Create/@Model.Id" class="btn btn-primary"><i class="fas fa-plus"></i>  Tools</a>
-
-            </form>
+                <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Project"><i class="fas fa-arrow-left"></i> Back To List</a>
+            </div>
+        </form>
     </div>
 </div>

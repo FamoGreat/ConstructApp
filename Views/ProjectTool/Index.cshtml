@@ -1,0 +1,74 @@
+﻿@model ProjectToolVM
+
+<partial name="_Notification" />
+
+<div class="card shadow mt-4">
+    <div class="card-body">
+        <div class="row mt-4">
+            <div class="col-md-6 mb-2 mb-md-0">
+                <p>
+                    <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectTool">Add Tool/Equipment</a>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="projectSelect" class="form-label">Please select a project to see the list of tools/equipments for that project</label>
+                <select id="projectSelect" class="form-control form-select">
+                    <option value="">Select Project</option>
+                    @foreach (var project in Model.ProjectList)
+                    {
+                        <option value="@project.Value">@project.Text</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4" id="toolsTable" style="display: none;">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">List of Tools</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Tool/Equipment Name</th>
+                                <th>Tool Description</th>
+                                <th>Quantity</th>
+                                <th>Cost</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="toolsTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#projectSelect').change(function () {
+                var projectId = $(this).val();
+                if (projectId) {
+                    $.ajax({
+                        url: '@Url.Action("GetToolsByProject", "ProjectTool")',
+                        type: 'GET',
+                        data: { projectId: projectId },
+                        success: function (data) {
+                            $('#toolsTable').show();
+                            $('#toolsTableBody').html(data);
+                        }
+                    });
+                } else {
+                    $('#toolsTable').hide();
+                }
+            });
+        });
+    </script>
+}

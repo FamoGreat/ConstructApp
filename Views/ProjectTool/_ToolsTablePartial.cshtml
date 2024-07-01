@@ -1,0 +1,66 @@
+﻿@model IEnumerable<ProjectTool>
+
+@foreach (var tool in Model)
+{
+    <tr>
+        <td>@tool.ToolName</td>
+        <td>@tool.ToolDescription</td>
+        <td>@tool.ToolsQuantity</td>
+        <td>@tool.ToolCost</td>
+        <td>
+            <div class="btn-group" role="group">
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectToolPermissions.Edit)).Result.Succeeded)
+                {
+                    <a class="btn btn-primary btn-sm mr-2" asp-controller="ProjectTool" asp-action="Edit" asp-route-Id="@tool.Id"><i class="fas fa-edit"></i></a>
+                }
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectToolPermissions.Delete)).Result.Succeeded)
+                {
+                    <button type="button" class="btn btn-danger btn-sm delete-button" data-id="@tool.Id" data-name="@tool.ToolName">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                }
+            </div>
+        </td>
+    </tr>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".delete-button").click(function () {
+                const toolId = $(this).data("id");
+                const toolName = $(this).data("name");
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `You are about to delete the tool: ${toolName}`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/ProjectTool/' + toolId,  
+                            type: 'DELETE',
+                            success: function (response) {
+                                if (response.success) {
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                    // Remove the deleted row from the table
+                                    $(`button[data-id='${toolId}']`).closest('tr').remove();
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.fire('Error!', 'An error occurred while deleting the tool.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+}

@@ -45,11 +45,18 @@ namespace ConstructApp.Seeds
         private async static Task SeedClaimsForAdmin(this RoleManager<IdentityRole> roleManager)
         {
             var adminRole = await roleManager.FindByNameAsync("Admin");
+            if (adminRole == null)
+            {
+                adminRole = new IdentityRole("Admin");
+                await roleManager.CreateAsync(adminRole);
+            }
             await roleManager.AddPermissionClaim(adminRole, "UserPermissions");
             await roleManager.AddPermissionClaim(adminRole, "ExpensePermissions");
             await roleManager.AddPermissionClaim(adminRole, "ApprovalPermissions");
             await roleManager.AddPermissionClaim(adminRole, "ProjectPermissions");
             await roleManager.AddPermissionClaim(adminRole, "ProjectMaterialPermissions");
+            await roleManager.AddPermissionClaim(adminRole, "ProjectToolPermissions");
+
 
         }
         public static async Task AddPermissionClaim(this RoleManager<IdentityRole> roleManager, IdentityRole role, string module)

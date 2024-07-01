@@ -1,6 +1,9 @@
 ﻿using ConstructApp.Data;
 using ConstructApp.Models;
+using ConstructApp.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConstructApp.Controllers
@@ -9,41 +12,74 @@ namespace ConstructApp.Controllers
     public class ProjectToolController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public ProjectToolController(ApplicationDbContext dbContextContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProjectToolController(ApplicationDbContext dbContextContext, UserManager<ApplicationUser> userManager)
         {
             dbContext = dbContextContext;
+            _userManager = userManager;
+        }
+        public IActionResult Index()
+        {
+            var model = new ProjectToolVM
+            {
+                ProjectList = dbContext.Projects
+                .Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.ProjectName
+                }).ToList()
+            };
+            return View(model);
         }
 
-        public IActionResult Create(int id)
+        [HttpGet]
+        public IActionResult GetToolsByProject(int projectId)
+        {
+            var tools = dbContext.ProjectTools
+                .Where(pt => pt.ProjectId == projectId)
+                .Include(pt => pt.Project)
+                .ToList();
+
+            return PartialView("_ToolsTablePartial", tools);
+        }
+
+        public async Task<IActionResult> Create()
         {
 
-            var projectTool = new ProjectTool { ProjectId = id };
-            return View(projectTool);
-        }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-        [HttpPost]
+            ProjectToolVM projectToollVM = new()
+            {
+                ProjectList = dbContext.Projects.Select(u => new SelectListItem
+                {
+                    Text = u.ProjectName,
+                    Value = u.Id.ToString()
+                })
+            };
+
+            return View(projectToollVM);
+        }
+    
+
+    [HttpPost]
         public IActionResult Create(ProjectTool projectTool)
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (ModelState.IsValid)
                 {
-                    return View(projectTool);
+                    dbContext.ProjectTools.Add(projectTool);
+                    dbContext.SaveChanges();
+                    TempData["success"] = "Project Tool created successfully";
+
+                    UpdateTotalToolExpense(projectTool.ProjectId);
+                    return RedirectToAction("Index", "Project");
                 }
-
-                projectTool.Id = 0;
-                var existingProject = dbContext.Projects.FirstOrDefault(p => p.Id == projectTool.ProjectId);
-
-                if (existingProject == null)
-                {
-                    TempData["error"] = "The selected Project does not exist.";
-                    return View(projectTool);
-                }
-                dbContext.ProjectTools.Add(projectTool);
-                dbContext.SaveChanges();
-                TempData["success"] = "Project Tool created successfully";
-
-                return RedirectToAction("Index", "Project");
+                return View(projectTool);
             }
             catch (Exception ex)
             {
@@ -59,53 +95,91 @@ namespace ConstructApp.Controllers
                 return NotFound();
             }
 
-            ProjectTool? ProjectTool = dbContext.ProjectTools.FirstOrDefault(p => p.Id == id);
-            if (ProjectTool == null)
+            ProjectTool? projectTool = dbContext.ProjectTools.FirstOrDefault(p => p.Id == id);
+            if (projectTool == null)
             {
                 return NotFound();
             }
 
-            return View(ProjectTool);
-        }
+            var viewModel = new ProjectToolVM
+            {
+                ProjectTool = projectTool,
+                ProjectList = dbContext.Projects.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.ProjectName
+                }).ToList()
+            };
 
+            return View(viewModel);
+        }
         [HttpPost]
-        public IActionResult Edit(ProjectTool updatedProjectTool)
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(ProjectToolVM viewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(updatedProjectTool);
+                viewModel.ProjectList = dbContext.Projects.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.ProjectName
+                }).ToList();
+                return View(viewModel);
             }
 
             try
             {
-                // Avoid potential duplicate tracking
-                dbContext.Entry(updatedProjectTool).State = EntityState.Detached;
-
-                var existingTool = dbContext.ProjectTools.FirstOrDefault(p => p.Id == updatedProjectTool.Id);
+                var existingTool = dbContext.ProjectTools.FirstOrDefault(p => p.Id == viewModel.ProjectTool.Id);
                 if (existingTool == null)
                 {
                     return NotFound();
                 }
 
-                // Update properties
-                existingTool.ToolName = updatedProjectTool.ToolName; // Update other relevant properties
-                dbContext.Update(existingTool);
+                existingTool.ToolName = viewModel.ProjectTool.ToolName;
+                existingTool.ToolDescription = viewModel.ProjectTool.ToolDescription;
+                existingTool.ToolsQuantity = viewModel.ProjectTool.ToolsQuantity;
+                existingTool.ToolCost = viewModel.ProjectTool.ToolCost;
+                existingTool.ProjectId = viewModel.ProjectTool.ProjectId;
+
                 dbContext.SaveChanges();
                 TempData["success"] = "Project Tool updated successfully";
 
-                return RedirectToAction("Details", "Project", new { id = existingTool.ProjectId });
+                UpdateTotalToolExpense(viewModel.ProjectTool.ProjectId);
+
+                return RedirectToAction("Index", "ProjectTool");
             }
             catch (Exception ex)
             {
                 TempData["error"] = $"An error occurred while updating the Project Tool: {ex.Message}";
-                return View(updatedProjectTool);
+
+                viewModel.ProjectList = dbContext.Projects.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.ProjectName
+                }).ToList();
+                return View(viewModel);
+            }
+        }
+
+        private void UpdateTotalToolExpense(int projectId)
+        {
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+            if (project != null)
+            {
+                decimal totalToolCost = dbContext.ProjectTools
+                    .Where(pt => pt.ProjectId == projectId)
+                    .Sum(pt => pt.ToolCost * pt.ToolsQuantity);
+
+                project.TotalToolExpense = totalToolCost;
+
+                dbContext.SaveChanges();
             }
         }
 
 
         #region API CALLS
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -123,14 +197,16 @@ namespace ConstructApp.Controllers
             {
                 dbContext.Remove(ProjectToolToBeDeleted);
                 dbContext.SaveChanges();
+
+                UpdateTotalToolExpense(ProjectToolToBeDeleted.ProjectId);
                 return Ok(new { success = true, message = "Tool Delete Successful" });
             }
             catch (Exception ex)
             {
-                // Log the exception
                 return StatusCode(500, new { success = false, message = $"An error occurred while deleting the project Tool: {ex.Message}" });
             }
         }
+
 
         #endregion
 

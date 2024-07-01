@@ -1,0 +1,32 @@
+﻿@model IEnumerable<ProjectMaterial>
+
+@foreach (var material in Model)
+{
+    <tr>
+        <td>@material.MaterialCode</td>
+        <td>@material.MaterialName</td>
+        <td>@material.MaterialDescription</td>
+        <td>@material.EstimatedQuantity</td>
+        <td>@material.EstimatedCost</td>
+        <td>@material.MaterialUOMString</td>
+        <td>
+            <div class="btn-group" role="group">
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectMaterialPermissions.Edit)).Result.Succeeded)
+                {
+                    <a class="btn btn-primary btn-sm mr-2" asp-controller="ProjectMaterial" asp-action="Edit" asp-route-Id="@material.Id"><i class="fas fa-edit"></i></a>
+                }
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectMaterialPermissions.Delete)).Result.Succeeded)
+                {
+                    <form method="post" asp-action="Delete" asp-controller="ProjectMaterial"
+                          data-confirm-title="Are you sure?" data-confirm-text="This action cannot be undone."
+                          data-confirm-type="warning">
+                        <input type="hidden" name="id" value="@material.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                }
+            </div>
+        </td>
+    </tr>
+}

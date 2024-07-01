@@ -18,9 +18,7 @@ namespace ConstructApp.Models.ViewModels
         [ValidateNever]
         public string ChartType { get; set; }
         [DisplayName("Supportive Document")]
-        public IFormFile SupportiveDocument { get; set; }
-        [DisplayName("Project")]
-        public int ProjectId { get; set; }
+        public IFormFile? SupportiveDocument { get; set; }
     }
 
     public class ExpenseListVM

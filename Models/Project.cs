@@ -13,20 +13,24 @@ namespace ConstructApp.Models
         public string? Location { get; set; }
         [Required]
         [DisplayName("Start Date")]
-        public DateTime StartDate { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Today;
         [Required]
         [DisplayName("End Date")]
-        public DateTime EndDate { get; set; }
+        public DateTime EndDate { get; set; } = DateTime.Today;
         [Required]
         [DisplayName("Created By")]
         public string? CreatedBy { get; set; }
         [Required]
         [DisplayName("Created Date")]
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Today;
         [Required]
         [DisplayName("Total Budget")]
 
         public decimal TotalBudget { get; set; }
+        [DisplayName("Project Description")]
+        public string? ProjectDescription { get; set; }
+        public decimal TotalMaterialExpense { get; set; }
+        public decimal TotalToolExpense { get; set; }
         public virtual List<ProjectMaterial> ProjectMaterials { get; set; } = new List<ProjectMaterial>();
         public virtual List<ProjectTool> ProjectTools { get; set; } = new List<ProjectTool>();
     }

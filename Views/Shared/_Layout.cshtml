@@ -70,7 +70,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" asp-action="Index" asp-controller="Project">Projects</a>
                             <a class="collapse-item" asp-action="Index" asp-controller="ProjectMaterial">Materials</a>
-                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectTool">Tools</a>
+                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectTool">Tools/Equipments</a>
 
                     </div>
                 </div>
@@ -115,6 +115,21 @@
                 </div>
             </li>
             }
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaterialTools"
+                   aria-expanded="true" aria-controls="collapseMaterialTools">
+                    <i class="fas fa-toolbox"></i>
+                    <span>Materials and Tools</span>
+                </a>
+                <div id="collapseMaterialTools" class="collapse" aria-labelledby="headingMaterialTools" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" id="materials" asp-action="Index" asp-controller="Material">Materials</a>
+                        <a class="collapse-item" id="tools" asp-action="Index" asp-controller="Tool">Tools</a>
+                    </div>
+                </div>
+            </li>
+
             <!-- Nav Item - User Collapse Menu -->
             @if (AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.View).Result.Succeeded)
             {
@@ -265,7 +280,7 @@
                             </li>
  *@
                         <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                       @*  <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-envelope fa-fw"></i>
@@ -283,7 +298,7 @@
                                 </div>
                                 <a class="dropdown-item text-center  text-gray-500" asp-action="ViewAll" asp-controller="Notification">View All</a>
                             </div>
-                        </li>
+                        </li> *@
 
 
                             <div class="topbar-divider d-none d-sm-block"></div>

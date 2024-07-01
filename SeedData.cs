@@ -22,9 +22,9 @@ namespace ConstructApp
                     // Seed Roles 
                     await DefaultRoles.SeedRolesAsync(userManager, roleManager);
                     // Seed Default User
-                    //await DefaultUsers.SeedTechnicianUserAsync(userManager, roleManager, dbContext);
                     await DefaultUsers.SeedAdminAsync(userManager, roleManager);
                     DefaultExpenseType.SeedExpenseType(dbContext);
+                    DefaultMaterial.SeedMaterials(dbContext);
                 }
                 catch (Exception ex)
                 {

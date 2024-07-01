@@ -1,0 +1,96 @@
+﻿@model IEnumerable<Material>
+
+@{
+    ViewData["Title"] = "Materials Index";
+}
+<partial name="_Notification" />
+
+
+                    <p>
+                       <a class="btn btn-primary" href="@Url.Action("Create", "Material")">Create Material</a>
+                    </p>
+
+<div class="card shadow mb-4">
+
+    <div class="card-header">
+        <h4 class="m-0 font-weight-bold text-primary">Materials</h4>
+    </div>
+    <div class="card-body">
+        <form id="materialForm" asp-controller="Material" asp-action="Index" method="get">
+            <div class="form-group">
+                <label for="materialType">Select Material Type:</label>
+                <select class="form-control" id="materialType" name="materialType" required>
+                    <option value="">-- Select Type --</option>
+                    @foreach (var type in ViewBag.MaterialTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary mt-3">Show Materials</button>
+            </div>
+        </form>
+
+        <div id="materialList" class="mt-4">
+            <!-- Render partial view here -->
+            <div id="materialListPartial">
+                @Html.Partial("_MaterialListPartial", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: "Confirmation",
+                text: "Are you sure you want to delete this material?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Material/Delete/' + id,
+                        type: "DELETE",
+                        success: function (data) {
+                            if (data.success) {
+                                toastr.success(data.message);
+                                // Optionally, reload the partial view or table data
+                                $('#materialListPartial').load(location.href + " #materialListPartial>*", "");
+                            } else {
+                                toastr.error(data.message);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            toastr.error("Error occurred while deleting: " + error);
+                        }
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#materialForm').submit(function (event) {
+                event.preventDefault();
+                var selectedType = $('#materialType').val();
+                if (selectedType) {
+                    // Load partial view based on selected type
+                    $.get('/Material/LoadMaterialList?type=' + selectedType, function (data) {
+                        $('#materialListPartial').html(data);
+                    });
+                } else {
+                    // Hide the material list if no type is selected
+                    $('#materialListPartial').empty();
+                }
+            });
+
+            // Initialize DataTable
+            $('#dataTable').DataTable();
+        });
+    </script>
+}

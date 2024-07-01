@@ -5,14 +5,14 @@
 namespace ConstructApp.Migrations
 {
     /// <inheritdoc />
-    public partial class ExpenseDescription : Migration
+    public partial class ProjectDescription : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Description",
-                table: "Expenses",
+                name: "ProjectDescription",
+                table: "Projects",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -21,8 +21,8 @@ namespace ConstructApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Description",
-                table: "Expenses");
+                name: "ProjectDescription",
+                table: "Projects");
         }
     }
 }

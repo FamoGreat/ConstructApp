@@ -3,12 +3,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ConstructApp.Models.ViewModels
 {
-    public class ProjectMaterialVM
+    public class ProjectToolVM
     {
-        public ProjectMaterial ProjectMaterial { get; set; }
+        public ProjectTool ProjectTool { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem>? ProjectList { get; set; }
-        [ValidateNever]
-        public IEnumerable<SelectListItem> MaterialList { get; set; }
     }
 }

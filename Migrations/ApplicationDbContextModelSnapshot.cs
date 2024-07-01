@@ -199,6 +199,34 @@ namespace ConstructApp.Migrations
                     b.ToTable("ExpenseTypes");
                 });
 
+            modelBuilder.Entity("ConstructApp.Models.Material", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UnitOfMeasurement")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Materials");
+                });
+
             modelBuilder.Entity("ConstructApp.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -251,6 +279,9 @@ namespace ConstructApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProjectDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -259,6 +290,12 @@ namespace ConstructApp.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalBudget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalMaterialExpense")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalToolExpense")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");

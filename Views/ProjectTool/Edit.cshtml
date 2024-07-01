@@ -1,25 +1,50 @@
-﻿@model ProjectTool
+﻿@model ProjectToolVM
+
+<partial name="_Notification" />
 
 <div class="card shadow mb-4">
-    <div class="card-header  text-center">
-        <h4 class="m-0 font-weight-bold text-primary">Edit Project Tools Info</h4>
+    <div class="card-header text-center">
+        <h4 class="m-0 font-weight-bold text-primary">Edit Project Tool/Equipment Info</h4>
     </div>
     <div class="card-body">
-            <form asp-action="Edit" method="post" class="forms-sample">
-                <input asp-for="Id" type="hidden" />
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label asp-for="ToolName" class="form-label"></label>
-                            <input asp-for="ToolName" type="text" class="form-control">
-                            <span asp-validation-for="ToolName" class="text-danger"></span>
-                        </div>
-                    </div>
-
+        <form asp-action="Edit" method="post" class="forms-sample">
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="ProjectTool.ProjectId" class="form-label">Project</label>
+                    <select asp-for="ProjectTool.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select">
+                        <option disabled selected>-- Select Project --</option>
+                    </select>
+                    <span asp-validation-for="ProjectTool.ProjectId" class="text-danger"></span>
                 </div>
+                <div class="col-sm-6">
+                    <label asp-for="ProjectTool.ToolName" class="form-label">Tool/Equipment Name</label>
+                    <input asp-for="ProjectTool.ToolName" type="text" class="form-control">
+                    <span asp-validation-for="ProjectTool.ToolName" class="text-danger"></span>
+                </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
-            </form>
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="ProjectTool.ToolsQuantity" class="form-label">Number of Tools/Equipments</label>
+                    <input asp-for="ProjectTool.ToolsQuantity" class="form-control">
+                    <span asp-validation-for="ProjectTool.ToolsQuantity" class="text-danger"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="ProjectTool.ToolCost" class="form-label">Tool/Equipment Cost</label>
+                    <input asp-for="ProjectTool.ToolCost" class="form-control">
+                    <span asp-validation-for="ProjectTool.ToolCost" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label asp-for="ProjectTool.ToolDescription" class="form-label">Tool/Equipment Description</label>
+                <textarea asp-for="ProjectTool.ToolDescription" class="form-control"></textarea>
+                <span asp-validation-for="ProjectTool.ToolDescription" class="text-danger"></span>
+            </div>
+
+            <input type="hidden" asp-for="ProjectTool.Id" />
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+            <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="ProjectTool"><i class="fas fa-arrow-left"></i> Back To List</a>
+        </form>
     </div>
 </div>
-

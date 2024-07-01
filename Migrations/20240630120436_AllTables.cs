@@ -71,6 +71,22 @@ namespace ConstructApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Materials",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UnitOfMeasurement = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Materials", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -201,7 +217,7 @@ namespace ConstructApp.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SenderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -228,7 +244,9 @@ namespace ConstructApp.Migrations
                     ExpenseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ApprovalStatus = table.Column<int>(type: "int", nullable: false)
+                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
+                    SupportiveDocumentPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -255,14 +273,22 @@ namespace ConstructApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MaterialCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaterialName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaterialDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EstimatedQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EstimatedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MaterialUOM = table.Column<int>(type: "int", nullable: false),
-                    ProjectId = table.Column<int>(type: "int", nullable: false)
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    MaterialId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProjectMaterials", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectMaterials_Materials_MaterialId",
+                        column: x => x.MaterialId,
+                        principalTable: "Materials",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProjectMaterials_Projects_ProjectId",
                         column: x => x.ProjectId,
@@ -278,6 +304,9 @@ namespace ConstructApp.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ToolName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ToolDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ToolsQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ToolCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -384,6 +413,11 @@ namespace ConstructApp.Migrations
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProjectMaterials_MaterialId",
+                table: "ProjectMaterials",
+                column: "MaterialId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProjectMaterials_ProjectId",
                 table: "ProjectMaterials",
                 column: "ProjectId");
@@ -432,6 +466,9 @@ namespace ConstructApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Materials");
 
             migrationBuilder.DropTable(
                 name: "ExpenseTypes");

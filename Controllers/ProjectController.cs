@@ -74,16 +74,31 @@ namespace ConstructApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Project project)
         {
-            if (ModelState.IsValid)
+            try
             {
-                dbContext.Projects.Add(project);
-                await dbContext.SaveChangesAsync();
-                TempData["success"] = "Project created successfully";
+                if (ModelState.IsValid)
+                {
+                    project.TotalMaterialExpense = 0;
+                    project.TotalToolExpense = 0;
 
-                return RedirectToAction(nameof(Index));
+                    dbContext.Projects.Add(project);
+                    await dbContext.SaveChangesAsync();
+
+                    TempData["success"] = "Project created successfully";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(project);
             }
-            return View(project);
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while creating the project: {ex.Message}";
+
+                return RedirectToAction("Error", "Home");
+            }
         }
+
 
         public async Task<IActionResult> Edit(int? projectId)
         {
@@ -125,17 +140,27 @@ namespace ConstructApp.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Project updatedProject)
         {
-            if (ModelState.IsValid)
+            try
             {
-                dbContext.Update(updatedProject);
-                await dbContext.SaveChangesAsync();
-                TempData["success"] = "Project updated successfully";
+                if (ModelState.IsValid)
+                {
+                    dbContext.Update(updatedProject);
+                    await dbContext.SaveChangesAsync();
+                    TempData["success"] = "Project updated successfully";
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(updatedProject);
             }
-            return View(updatedProject);
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while updating the project: {ex.Message}";
+                return View(updatedProject);
+            }
         }
 
         public async Task<IActionResult> Details(int? projectId)
@@ -160,6 +185,9 @@ namespace ConstructApp.Controllers
             {
                 return NotFound();
             }
+
+            // Calculate total material and tool expenses
+            UpdateTotalExpenses(project.Id);
 
             return View(project);
         }
@@ -200,6 +228,32 @@ namespace ConstructApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+
+        private void UpdateTotalExpenses(int projectId)
+        {
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+            if (project != null)
+            {
+                // Calculate total material cost
+                decimal totalMaterialCost = dbContext.ProjectMaterials
+                    .Where(pm => pm.ProjectId == projectId)
+                    .Sum(pm => pm.EstimatedCost * pm.EstimatedQuantity);
+
+                // Calculate total tool cost
+                decimal totalToolCost = dbContext.ProjectTools
+                    .Where(pt => pt.ProjectId == projectId)
+                    .Sum(pt => pt.ToolCost * pt.ToolsQuantity);
+
+                // Update project's total expenses
+                project.TotalMaterialExpense = totalMaterialCost;
+                project.TotalToolExpense = totalToolCost;
+
+                // Save changes to the database
+                dbContext.SaveChanges();
+            }
+        }
+
 
         #region API CALLS
 

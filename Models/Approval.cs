@@ -15,7 +15,7 @@ public class Approval
     public virtual Expense? Expense { get; set; }
 
     [Required]
-    public DateTime ApprovalDate { get; set; }
+    public DateTime ApprovalDate { get; set; } = DateTime.Today;
 
     [StringLength(100)]
     public string? Description { get; set; }

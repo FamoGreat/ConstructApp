@@ -1,4 +1,6 @@
-﻿@model Dictionary<string, decimal>
+﻿
+
+@model Dictionary<string, decimal>
 
 @{
     ViewData["Title"] = $"{ViewBag.ChartType} Expense Chart";
@@ -19,7 +21,6 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Function to format numbers
         function number_format(number, decimals, dec_point, thousands_sep) {
@@ -59,6 +60,7 @@
                     backgroundColor: '#4e73df',
                     hoverBackgroundColor: '#2e59d9',
                     borderColor: '#4e73df',
+                    borderWidth: 1,
                     data: chartData
                 }]
             },
@@ -70,20 +72,16 @@
                     callbacks: {
                         label: function (tooltipItem, data) {
                             var label = data.datasets[tooltipItem.datasetIndex].label || '';
-                            var value = number_format(tooltipItem.yLabel, 2, '.', ',');
+                            var value = tooltipItem.yLabel.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                             return label + ': TZS ' + value;
                         }
                     }
                 },
                 scales: {
-                    xAxes: [{
-                        ticks: { maxTicksLimit: 6 },
-                        gridLines: { display: false }
-                    }],
                     yAxes: [{
                         ticks: {
                             callback: function (value) {
-                                return 'Tsh ' + number_format(value, 2, '.', ',');
+                                return 'TZS ' + value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                             }
                         },
                         gridLines: {
@@ -96,6 +94,5 @@
                     }]
                 }
             }
-        });
-    </script>
+        });</script>
 }

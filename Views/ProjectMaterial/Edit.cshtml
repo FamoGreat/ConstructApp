@@ -7,36 +7,44 @@
         <h4 class="m-0 font-weight-bold text-primary">Edit Project Materials Info</h4>
     </div>
     <div class="card-body">
-            <form asp-action="Edit" method="post" class="forms-sample">
-                <input asp-for="ProjectMaterial.Id" hidden />
+
+        <form asp-action="Edit" method="post" class="forms-sample">
+            <input asp-for="ProjectMaterial.Id" hidden />
             <div class="form-group row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="ProjectMaterial.ProjectId" class="form-label"></label>
+                    <select asp-for="ProjectMaterial.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select">
+                        <option disabled selected>-- Select Project --</option>
+                    </select>
+                    <span asp-validation-for="ProjectMaterial.ProjectId" class="text-danger"></span>
+                </div>
+                <div class="col-sm-6">
                     <label asp-for="ProjectMaterial.MaterialName" class="form-label">Material Name</label>
                     <input asp-for="ProjectMaterial.MaterialName" type="text" class="form-control">
                     <span asp-validation-for="ProjectMaterial.MaterialName" class="text-danger"></span>
                 </div>
-                <div class="col-sm-6">
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
                     <label asp-for="ProjectMaterial.MaterialCode" class="form-label">Material Code</label>
                     <input asp-for="ProjectMaterial.MaterialCode" type="text" class="form-control">
                     <span asp-validation-for="ProjectMaterial.MaterialCode" class="text-danger"></span>
                 </div>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-sm-6">
                     <label asp-for="ProjectMaterial.EstimatedQuantity" class="form-label">Estimated Quantity</label>
                     <input asp-for="ProjectMaterial.EstimatedQuantity" class="form-control">
                     <span asp-validation-for="ProjectMaterial.EstimatedQuantity" class="text-danger"></span>
                 </div>
-                <div class="col-sm-6">
-                    <label asp-for="ProjectMaterial.EstimatedCost" class="form-label">Estimated Cost</label>
-                    <input asp-for="ProjectMaterial.EstimatedCost" class="form-control">
-                    <span asp-validation-for="ProjectMaterial.EstimatedCost" class="text-danger"></span>
-                </div>
             </div>
 
             <div class="form-group row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label asp-for="ProjectMaterial.EstimatedCost" class="form-label">Estimated Cost</label>
+                    <input asp-for="ProjectMaterial.EstimatedCost" class="form-control">
+                    <span asp-validation-for="ProjectMaterial.EstimatedCost" class="text-danger"></span>
+                </div>
+                <div class="col-sm-6">
                     <label asp-for="ProjectMaterial.MaterialUOM" class="form-label"></label>
                     <select asp-for="ProjectMaterial.MaterialUOM" class="form-control form-select">
                         <option value="">-- Select Unit of Measurement --</option>
@@ -47,15 +55,15 @@
                     </select>
                     <span asp-validation-for="ProjectMaterial.MaterialUOM" class="text-danger"></span>
                 </div>
-                <div class="col-sm-6">
-                    <label asp-for="ProjectMaterial.ProjectId" class="form-label"></label>
-                    <select asp-for="ProjectMaterial.ProjectId" asp-items="@Model.ProjectList" class="form-control form-select">
-                        <option disabled selected>-- Select Project --</option>
-                    </select>
-                    <span asp-validation-for="ProjectMaterial.ProjectId" class="text-danger"></span>
-                </div>
             </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
-            </form>
+            <div class="form-group row">
+                <label asp-for="ProjectMaterial.MaterialDescription" class="form-label">Material Description</label>
+                <textarea asp-for="ProjectMaterial.MaterialDescription" class="form-control"></textarea>
+                <span asp-validation-for="ProjectMaterial.MaterialDescription" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i>Edit Material</button>
+            <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="ProjectMaterial"><i class="fas fa-arrow-left"></i> Back To List</a>
+        </form>
     </div>
 </div>

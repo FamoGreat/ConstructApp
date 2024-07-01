@@ -17,8 +17,8 @@ namespace ConstructApp.Models
         [Required]
         [DisplayName("Material Name")]
         public string? MaterialName { get; set; }
-        [DisplayName("Material Description")]
 
+        [DisplayName("Material Description")]
         public string? MaterialDescription { get; set; }
 
         [Required]
@@ -33,16 +33,19 @@ namespace ConstructApp.Models
         [Required]
         [DisplayName("Unit Of Measurement")]
         public UnitOfMeasurement MaterialUOM { get; set; }
+
         [NotMapped]
         public string? MaterialUOMString
         {
             get => Enum.GetName(typeof(UnitOfMeasurement), MaterialUOM);
             set => MaterialUOM = (UnitOfMeasurement)Enum.Parse(typeof(UnitOfMeasurement), value);
         }
+
         [DisplayName("Project")]
-        [ValidateNever]
-        [ForeignKey("ProjectId")]
+        [ValidateNever] 
         public int ProjectId { get; set; }
+
         public virtual Project? Project { get; set; }
     }
+
 }

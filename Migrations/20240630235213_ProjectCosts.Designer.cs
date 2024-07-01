@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240625215155_AllTables")]
-    partial class AllTables
+    [Migration("20240630235213_ProjectCosts")]
+    partial class ProjectCosts
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -161,6 +161,9 @@ namespace ConstructApp.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("ExpenseAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -169,6 +172,9 @@ namespace ConstructApp.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SupportiveDocumentPath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -196,6 +202,34 @@ namespace ConstructApp.Migrations
                     b.ToTable("ExpenseTypes");
                 });
 
+            modelBuilder.Entity("ConstructApp.Models.Material", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UnitOfMeasurement")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Materials");
+                });
+
             modelBuilder.Entity("ConstructApp.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -213,11 +247,11 @@ namespace ConstructApp.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SenderId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -248,6 +282,9 @@ namespace ConstructApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProjectDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -256,6 +293,12 @@ namespace ConstructApp.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalBudget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalMaterialExpense")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalToolExpense")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -279,6 +322,9 @@ namespace ConstructApp.Migrations
 
                     b.Property<string>("MaterialCode")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaterialDescription")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaterialName")
@@ -309,9 +355,18 @@ namespace ConstructApp.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("ToolCost")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ToolDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ToolName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("ToolsQuantity")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
