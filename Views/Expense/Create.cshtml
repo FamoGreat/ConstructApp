@@ -44,18 +44,31 @@
                     <input asp-for="SupportiveDocument" type="file" class="form-control" />
                     <span asp-validation-for="SupportiveDocument" class="text-danger"></span>
                 </div>
-                <div class="col-sm-6">
+                </div>
+            <div class="row">
+                <div class="py-2 col-12">
                     <label asp-for="Expense.Description"></label>
-                    <textarea asp-for="Expense.Description" class="form-control"></textarea>
-                    <span asp-validation-for="Expense.Description" class="text-danger"></span>
+                    <textarea asp-for="Expense.Description" class="form-control"> Description</textarea>
                 </div>
-                </div>
+
+            </div>
             
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
                     <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="Expense"><i class="fas fa-arrow-left"></i> Back To List</a>
                 </div>
 
             </form>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'anchor autolink charmap codesample emoticons  lists media  table visualblocks wordcount linkchecker markdown',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent',
+        });
+    </script>
+}

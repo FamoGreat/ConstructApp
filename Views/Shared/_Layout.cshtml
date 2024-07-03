@@ -90,8 +90,8 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" asp-action="Index" asp-controller="Expense">My Request</a>
                         <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
-                            <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
-                        <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
+@*                             <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
+ *@                        <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
                     </div>
                 </div>
             </li>
@@ -391,7 +391,7 @@
     <script src="~/js/NotificationMessage.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdn.tiny.cloud/1/dfglg0pkghta545kg7lbgdj01mlz3v5bq2byzouw0qnjuh1p/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @await RenderSectionAsync("Scripts", required: false)

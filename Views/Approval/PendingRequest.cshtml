@@ -17,7 +17,6 @@
                         <td>#</td>
                         <th>Project Name</th>
                         <th>Expense Type</th>
-                        <th>Amount</th>
                         <th>Created By</th>
                         <th>Date</th>
                         <th>Status</th>
@@ -35,7 +34,6 @@
                                 <td>@(Model.Expenses.IndexOf(expense) + 1)</td>
                                 <td>@(expense.Project?.ProjectName ?? "N/A")</td>
                                 <td>@(expense.ExpenseType?.Name ?? "N/A")</td>
-                                <td>@expense.ExpenseAmount</td>
                                 <td>@expense.CreatedBy</td>
                                 <td>@expense.CreatedDate.ToString("MM/dd/yyyy")</td>
                                 <td>@expense.ApprovalStatus</td>
