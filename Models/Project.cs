@@ -25,7 +25,6 @@ namespace ConstructApp.Models
         public DateTime CreatedDate { get; set; } = DateTime.Today;
         [Required]
         [DisplayName("Total Budget")]
-
         public decimal TotalBudget { get; set; }
         [DisplayName("Project Description")]
         public string? ProjectDescription { get; set; }

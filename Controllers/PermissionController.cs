@@ -31,6 +31,8 @@ namespace ConstructApp.Controllers
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectPermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectMaterialPermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectToolPermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ToolPermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.MaterialPermissions), roleId);
 
                 var role = await _roleManager.FindByIdAsync(roleId);
                 if (role is null)

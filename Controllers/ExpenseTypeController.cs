@@ -1,4 +1,5 @@
 ﻿using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,13 @@ namespace ConstructApp.Controllers
             {
                 ExpenseType newExpenseType = new ExpenseType { Name = expenseTypeName };
                 dbContext.ExpenseTypes.Add(newExpenseType);
-                TempData["success"] = "Expense Type created successfully";
 
                 await dbContext.SaveChangesAsync();
+
+                ChangeTrackingHelper.LogChanges(null, newExpenseType, EntityState.Added, "Expense type created", dbContext, User.Identity.Name);
+
+                TempData["success"] = "Expense Type created successfully";
+
             }
             return RedirectToAction("Index");
         }
@@ -40,10 +45,19 @@ namespace ConstructApp.Controllers
             ExpenseType existingExpenseType = await dbContext.ExpenseTypes.FindAsync(expenseTypeId);
             if (existingExpenseType != null)
             {
+                var originalExpenseType = new ExpenseType
+                {
+                    Id = existingExpenseType.Id,
+                    Name = existingExpenseType.Name
+                };
+
                 existingExpenseType.Name = expenseType;
-                TempData["success"] = "Expense Type Updated successfully";
 
                 await dbContext.SaveChangesAsync();
+
+                ChangeTrackingHelper.LogChanges(originalExpenseType, existingExpenseType, EntityState.Modified, "Expense type updated", dbContext, User.Identity.Name);
+
+                TempData["success"] = "Expense Type updated successfully";
             }
             return RedirectToAction("Index");
         }
@@ -54,12 +68,21 @@ namespace ConstructApp.Controllers
             ExpenseType expenseTypeToDelete = await dbContext.ExpenseTypes.FindAsync(expenseTypeId);
             if (expenseTypeToDelete != null)
             {
-                dbContext.ExpenseTypes.Remove(expenseTypeToDelete);
-                TempData["success"] = "Expense TypeDeleted successfully";
+                //var originalExpenseType = new ExpenseType
+                //{
+                //    Id = expenseTypeToDelete.Id,
+                //    Name = expenseTypeToDelete.Name
+                //};
 
+                dbContext.ExpenseTypes.Remove(expenseTypeToDelete);
                 await dbContext.SaveChangesAsync();
+
+                //ChangeTrackingHelper.LogChanges(originalExpenseType, null, EntityState.Deleted, "Expense type deleted", dbContext, User.Identity.Name);
+
+                TempData["success"] = "Expense Type deleted successfully";
             }
             return RedirectToAction("Index");
         }
+
     }
 }

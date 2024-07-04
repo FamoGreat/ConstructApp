@@ -1,4 +1,5 @@
 ﻿using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -76,6 +77,8 @@ namespace ConstructApp.Controllers
                     dbContext.SaveChanges();
                     TempData["success"] = "Project Tool created successfully";
 
+                    ChangeTrackingHelper.LogChanges<ProjectTool>(null, projectTool, EntityState.Added, "Project Tool created", dbContext, User.Identity.Name);
+
                     UpdateTotalToolExpense(projectTool.ProjectId);
                     return RedirectToAction("Index", "Project");
                 }
@@ -135,6 +138,8 @@ namespace ConstructApp.Controllers
                     return NotFound();
                 }
 
+                ChangeTrackingHelper.LogChanges<ProjectTool>(existingTool, viewModel.ProjectTool, EntityState.Modified, viewModel.UpdateReason, dbContext, User.Identity.Name);
+
                 existingTool.ToolName = viewModel.ProjectTool.ToolName;
                 existingTool.ToolDescription = viewModel.ProjectTool.ToolDescription;
                 existingTool.ToolsQuantity = viewModel.ProjectTool.ToolsQuantity;
@@ -178,7 +183,6 @@ namespace ConstructApp.Controllers
 
 
         #region API CALLS
-
         [HttpDelete("{id}")]
         public IActionResult Delete(int? id)
         {
@@ -187,18 +191,33 @@ namespace ConstructApp.Controllers
                 return BadRequest(new { success = false, message = "ID parameter is missing." });
             }
 
-            var ProjectToolToBeDeleted = dbContext.ProjectTools.FirstOrDefault(p => p.Id == id);
-            if (ProjectToolToBeDeleted == null)
+            var projectToolToBeDeleted = dbContext.ProjectTools.FirstOrDefault(p => p.Id == id);
+            if (projectToolToBeDeleted == null)
             {
                 return NotFound(new { success = false, message = $"Project Tool with ID {id} not found." });
             }
 
+            // Capture the state of the entity before deletion
+            //var originalProjectTool = new ProjectTool
+            //{
+            //    Id = projectToolToBeDeleted.Id,
+            //    ToolName = projectToolToBeDeleted.ToolName,
+            //    ToolDescription = projectToolToBeDeleted.ToolDescription,
+            //    ToolsQuantity = projectToolToBeDeleted.ToolsQuantity,
+            //    ToolCost = projectToolToBeDeleted.ToolCost,
+            //    ProjectId = projectToolToBeDeleted.ProjectId
+            //};
+
             try
             {
-                dbContext.Remove(ProjectToolToBeDeleted);
+                dbContext.ProjectTools.Remove(projectToolToBeDeleted);
                 dbContext.SaveChanges();
 
-                UpdateTotalToolExpense(ProjectToolToBeDeleted.ProjectId);
+                UpdateTotalToolExpense(projectToolToBeDeleted.ProjectId);
+
+                // Log the deletion
+                //ChangeTrackingHelper.LogChanges(originalProjectTool, null, EntityState.Deleted, "Project Tool deleted", dbContext, User.Identity.Name);
+
                 return Ok(new { success = true, message = "Tool Delete Successful" });
             }
             catch (Exception ex)
@@ -206,6 +225,7 @@ namespace ConstructApp.Controllers
                 return StatusCode(500, new { success = false, message = $"An error occurred while deleting the project Tool: {ex.Message}" });
             }
         }
+
 
 
         #endregion

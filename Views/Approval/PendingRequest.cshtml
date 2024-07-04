@@ -171,15 +171,15 @@
     <script>
         $(function () {
             $('#descriptionModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var description = button.data('description'); // Extract description
+                var button = $(event.relatedTarget); 
+                var description = button.data('description'); 
                 var modal = $(this);
                 modal.find('#descriptionContent').text(description);
             });
 
             $('#approveModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var id = button.data('id'); // Extract info from data-* attributes
+                var button = $(event.relatedTarget); 
+                var id = button.data('id'); 
                 var modal = $(this);
                 modal.find('#expenseId').val(id);
             });

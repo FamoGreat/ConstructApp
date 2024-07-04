@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ConstructApp.Migrations
 {
     /// <inheritdoc />
-    public partial class AllTables : Migration
+    public partial class LogsTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -98,7 +98,10 @@ namespace ConstructApp.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalBudget = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    TotalBudget = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProjectDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TotalMaterialExpense = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalToolExpense = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -212,28 +215,6 @@ namespace ConstructApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Notifications",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SenderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notifications", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Notifications_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Expenses",
                 columns: table => new
                 {
@@ -277,18 +258,11 @@ namespace ConstructApp.Migrations
                     EstimatedQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EstimatedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MaterialUOM = table.Column<int>(type: "int", nullable: false),
-                    ProjectId = table.Column<int>(type: "int", nullable: false),
-                    MaterialId = table.Column<int>(type: "int", nullable: false)
+                    ProjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProjectMaterials", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProjectMaterials_Materials_MaterialId",
-                        column: x => x.MaterialId,
-                        principalTable: "Materials",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProjectMaterials_Projects_ProjectId",
                         column: x => x.ProjectId,
@@ -408,16 +382,6 @@ namespace ConstructApp.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Notifications_ApplicationUserId",
-                table: "Notifications",
-                column: "ApplicationUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectMaterials_MaterialId",
-                table: "ProjectMaterials",
-                column: "MaterialId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProjectMaterials_ProjectId",
                 table: "ProjectMaterials",
                 column: "ProjectId");
@@ -450,7 +414,7 @@ namespace ConstructApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Notifications");
+                name: "Materials");
 
             migrationBuilder.DropTable(
                 name: "ProjectMaterials");
@@ -466,9 +430,6 @@ namespace ConstructApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Materials");
 
             migrationBuilder.DropTable(
                 name: "ExpenseTypes");

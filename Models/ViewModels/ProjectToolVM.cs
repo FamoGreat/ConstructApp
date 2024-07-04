@@ -8,5 +8,7 @@ namespace ConstructApp.Models.ViewModels
         public ProjectTool ProjectTool { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem>? ProjectList { get; set; }
+
+        public string? UpdateReason { get; set; }
     }
 }

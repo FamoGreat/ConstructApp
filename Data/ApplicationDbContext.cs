@@ -18,6 +18,14 @@ namespace ConstructApp.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Approval> Approvals { get; set; }
+        public DbSet<ProjectMaterialUpdateLog> ProjectMaterialUpdateLogs { get; set; }
+        public DbSet<ProjectToolUpdateLog> ProjectToolUpdateLogs { get; set; }
+        public DbSet<ProjectLog> ProjectLogs { get; set; }
+        public DbSet<MaterialLog> MaterialLogs { get; set; }
+        public DbSet<ExpenseTypeLog> ExpenseTypeLogs { get; set; }
+        public DbSet<ExpenseLog> ExpenseLogs { get; set; }
+        public DbSet<ApprovalLog> ApprovalLogs { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

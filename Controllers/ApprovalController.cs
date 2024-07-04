@@ -1,4 +1,5 @@
 ﻿using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,6 @@ namespace ConstructApp.Controllers
             };
             return View(expenseListVM);
         }
-
         [HttpPost]
         public IActionResult Approve(int expenseId, string approvalStatus, string description)
         {
@@ -37,6 +37,12 @@ namespace ConstructApp.Controllers
             {
                 return NotFound();
             }
+
+            var oldApproval = expense.Approval != null ? new Approval
+            {
+                ApprovalDate = expense.Approval.ApprovalDate,
+                Description = expense.Approval.Description
+            } : null;
 
             if (approvalStatus == "Approved")
             {
@@ -72,6 +78,8 @@ namespace ConstructApp.Controllers
             }
 
             dbContext.SaveChanges();
+
+            ChangeTrackingHelper.LogChanges<Approval>(oldApproval, expense.Approval, EntityState.Modified, "Approval updated", dbContext, User.Identity.Name);
 
             return RedirectToAction(nameof(PendingRequest));
         }

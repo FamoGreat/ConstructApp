@@ -61,8 +61,12 @@
                 <textarea asp-for="ProjectMaterial.MaterialDescription" class="form-control"></textarea>
                 <span asp-validation-for="ProjectMaterial.MaterialDescription" class="text-danger"></span>
             </div>
-
-            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i>Edit Material</button>
+            <div class="form-group">
+                <label asp-for="UpdateReason" class="control-label">Reason for Update</label>
+                <textarea asp-for="UpdateReason" class="form-control" required></textarea>
+                <span asp-validation-for="UpdateReason" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Edit Material</button>
             <a class="btn btn-primary btn-light" asp-action="Index" asp-controller="ProjectMaterial"><i class="fas fa-arrow-left"></i> Back To List</a>
         </form>
     </div>

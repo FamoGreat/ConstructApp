@@ -10,5 +10,8 @@ namespace ConstructApp.Models.ViewModels
         public IEnumerable<SelectListItem>? ProjectList { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem> MaterialList { get; set; }
+
+        public string? UpdateReason { get; set; }
+
     }
 }

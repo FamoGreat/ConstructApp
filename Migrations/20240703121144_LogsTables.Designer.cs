@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240630122737_AllTables2")]
-    partial class AllTables2
+    [Migration("20240703121144_LogsTables")]
+    partial class LogsTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -230,36 +230,6 @@ namespace ConstructApp.Migrations
                     b.ToTable("Materials");
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("ConstructApp.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -282,6 +252,9 @@ namespace ConstructApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProjectDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -290,6 +263,12 @@ namespace ConstructApp.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalBudget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalMaterialExpense")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalToolExpense")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -533,15 +512,6 @@ namespace ConstructApp.Migrations
                     b.Navigation("ExpenseType");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("ConstructApp.Models.Notification", b =>
-                {
-                    b.HasOne("ConstructApp.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.ProjectMaterial", b =>

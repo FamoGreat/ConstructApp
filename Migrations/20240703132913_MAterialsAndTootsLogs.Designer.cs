@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConstructApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240630120436_AllTables")]
-    partial class AllTables
+    [Migration("20240703132913_MAterialsAndTootsLogs")]
+    partial class MAterialsAndTootsLogs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -230,36 +230,6 @@ namespace ConstructApp.Migrations
                     b.ToTable("Materials");
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("ConstructApp.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -282,6 +252,9 @@ namespace ConstructApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProjectDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -290,6 +263,12 @@ namespace ConstructApp.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalBudget")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalMaterialExpense")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalToolExpense")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -318,9 +297,6 @@ namespace ConstructApp.Migrations
                     b.Property<string>("MaterialDescription")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MaterialId")
-                        .HasColumnType("int");
-
                     b.Property<string>("MaterialName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -333,11 +309,42 @@ namespace ConstructApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MaterialId");
-
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectMaterials");
+                });
+
+            modelBuilder.Entity("ConstructApp.Models.ProjectMaterialUpdateLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Changes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProjectMaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectMaterialId");
+
+                    b.ToTable("ProjectMaterialUpdateLogs");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.ProjectTool", b =>
@@ -369,6 +376,39 @@ namespace ConstructApp.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectTools");
+                });
+
+            modelBuilder.Entity("ConstructApp.Models.ProjectToolUpdateLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Changes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProjectToolId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectToolId");
+
+                    b.ToTable("ProjectToolUpdateLogs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -540,32 +580,26 @@ namespace ConstructApp.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("ConstructApp.Models.Notification", b =>
-                {
-                    b.HasOne("ConstructApp.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("ConstructApp.Models.ProjectMaterial", b =>
                 {
-                    b.HasOne("ConstructApp.Models.Material", "Material")
-                        .WithMany()
-                        .HasForeignKey("MaterialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ConstructApp.Models.Project", "Project")
                         .WithMany("ProjectMaterials")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Material");
-
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ConstructApp.Models.ProjectMaterialUpdateLog", b =>
+                {
+                    b.HasOne("ConstructApp.Models.ProjectMaterial", "ProjectMaterial")
+                        .WithMany()
+                        .HasForeignKey("ProjectMaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProjectMaterial");
                 });
 
             modelBuilder.Entity("ConstructApp.Models.ProjectTool", b =>
@@ -577,6 +611,17 @@ namespace ConstructApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ConstructApp.Models.ProjectToolUpdateLog", b =>
+                {
+                    b.HasOne("ConstructApp.Models.ProjectTool", "ProjectTool")
+                        .WithMany()
+                        .HasForeignKey("ProjectToolId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProjectTool");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

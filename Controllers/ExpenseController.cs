@@ -1,5 +1,6 @@
 ﻿using ConstructApp.Constants;
 using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using ConstructApp.Services;
@@ -130,6 +131,8 @@ namespace ConstructApp.Controllers
                     // Add expense to DbContext
                     dbContext.Expenses.Add(expenseVM.Expense);
                     dbContext.SaveChanges();
+
+                    ChangeTrackingHelper.LogChanges<Expense>(null, expenseVM.Expense, EntityState.Added, "Expense created", dbContext, User.Identity.Name);
 
                     TempData["success"] = "Expense added successfully";
                     return RedirectToAction("Index", "Expense");
@@ -308,6 +311,17 @@ namespace ConstructApp.Controllers
                         return NotFound();
                     }
 
+                    var originalExpense = new Expense
+                    {
+                        ProjectId = existingExpense.ProjectId,
+                        ExpenseTypeId = existingExpense.ExpenseTypeId,
+                        CreatedBy = existingExpense.CreatedBy,
+                        CreatedDate = existingExpense.CreatedDate,
+                        Description = existingExpense.Description,
+                        ApprovalStatus = existingExpense.ApprovalStatus,
+                        ExpenseAmount = existingExpense.ExpenseAmount,
+                        SupportiveDocumentPath = existingExpense.SupportiveDocumentPath
+                    };
                     if (TryValidateModel(expenseVM.Expense))
                     {
                         if (expenseVM.SupportiveDocument != null)
@@ -347,6 +361,9 @@ namespace ConstructApp.Controllers
                         CalculateExpenseAmount(existingExpense);
 
                         dbContext.SaveChanges();
+
+                        ChangeTrackingHelper.LogChanges(originalExpense, existingExpense, EntityState.Modified, "Expense updated", dbContext, User.Identity.Name);
+
                         TempData["success"] = "Expense request updated successfully";
                         return RedirectToAction("Index", "Expense");
                     }
@@ -446,8 +463,27 @@ namespace ConstructApp.Controllers
                     return NotFound(new { success = false, message = "Expense not found." });
                 }
 
+                // Capture the state of the entity before deletion
+                //var originalExpense = new Expense
+                //{
+                //    Id = expense.Id,
+                //    ProjectId = expense.ProjectId,
+                //    ExpenseTypeId = expense.ExpenseTypeId,
+                //    ExpenseAmount = expense.ExpenseAmount,
+                //    CreatedBy = expense.CreatedBy,
+                //    CreatedDate = expense.CreatedDate,
+                //    ApprovalStatus = expense.ApprovalStatus,
+                //    Description = expense.Description,
+                //    SupportiveDocumentPath = expense.SupportiveDocumentPath
+                //};
+
+           
+
                 dbContext.Expenses.Remove(expense);
                 dbContext.SaveChanges();
+
+                // Log the deletion
+                //ChangeTrackingHelper.LogChanges(originalExpense, null, EntityState.Deleted, "Expense deleted", dbContext, User.Identity.Name);
 
                 return Json(new { success = true, message = "Expense deleted successfully." });
             }
@@ -456,6 +492,7 @@ namespace ConstructApp.Controllers
                 return StatusCode(500, new { success = false, message = "An error occurred while deleting the expense.", error = ex.Message });
             }
         }
+
 
 
         [HttpGet]

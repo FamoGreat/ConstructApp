@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Identity;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Build.ObjectModelRemoting;
+using ConstructApp.Helpers;
+using ConstructApp.Models.ViewModels;
+using System.Security.Claims;
 
 namespace ConstructApp.Controllers
 {
@@ -38,10 +41,13 @@ namespace ConstructApp.Controllers
                 return RedirectToAction("Index", "ErrorPermission");
             }
 
+            string currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             List<Project> projectList = await dbContext.Projects.ToListAsync();
 
             return View(projectList);
         }
+
 
         public async Task<IActionResult> Create()
         {
@@ -85,6 +91,7 @@ namespace ConstructApp.Controllers
                     await dbContext.SaveChangesAsync();
 
                     TempData["success"] = "Project created successfully";
+                    ChangeTrackingHelper.LogChanges<Project>(null, project, EntityState.Added, "Project created", dbContext, User.Identity.Name);
 
                     return RedirectToAction(nameof(Index));
                 }
@@ -102,6 +109,7 @@ namespace ConstructApp.Controllers
 
         public async Task<IActionResult> Edit(int? projectId)
         {
+
             try
             {
                 if (projectId == null || projectId == 0)
@@ -147,6 +155,10 @@ namespace ConstructApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    var originalProject = await dbContext.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.Id == updatedProject.Id);
+
+                    ChangeTrackingHelper.LogChanges<Project>(originalProject, updatedProject, EntityState.Modified, "Project Updated", dbContext, User.Identity.Name);
+
                     dbContext.Update(updatedProject);
                     await dbContext.SaveChangesAsync();
                     TempData["success"] = "Project updated successfully";

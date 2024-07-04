@@ -1,5 +1,6 @@
 ﻿using ConstructApp.Constants;
 using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -70,8 +71,16 @@ namespace ConstructApp.Controllers
         {
             try
             {
+
                 if (!ModelState.IsValid)
                 {
+
+                    var ProjectList = dbContext.Projects.Select(u => new SelectListItem
+                    {
+                        Text = u.ProjectName,
+                        Value = u.Id.ToString()
+                    });
+                 
                     return View(projectMaterialVM);
                 }
 
@@ -91,6 +100,9 @@ namespace ConstructApp.Controllers
 
                 dbContext.ProjectMaterials.Add(projectMaterialVM.ProjectMaterial);
                 dbContext.SaveChanges();
+
+                ChangeTrackingHelper.LogChanges<ProjectMaterial>(null, projectMaterialVM.ProjectMaterial, EntityState.Added, "New project material created", dbContext, User.Identity.Name);
+
                 TempData["success"] = "Project Material created successfully";
                 // Update total material expense after adding material
                 UpdateTotalMaterialExpense(projectMaterialVM.ProjectMaterial.ProjectId);
@@ -166,6 +178,8 @@ namespace ConstructApp.Controllers
                         return View(updatedProjectMaterial);
                     }
                 }
+
+                ChangeTrackingHelper.LogChanges<ProjectMaterial>(existingMaterial, updatedProjectMaterial.ProjectMaterial, EntityState.Modified, updatedProjectMaterial.UpdateReason, dbContext, User.Identity.Name);
 
                 existingMaterial.ProjectId = updatedProjectMaterial.ProjectMaterial.ProjectId;
                 existingMaterial.MaterialName = updatedProjectMaterial.ProjectMaterial.MaterialName;
@@ -319,6 +333,17 @@ namespace ConstructApp.Controllers
                 }
 
                 dbContext.SaveChanges();
+
+                foreach (var material in selectedMaterials)
+                {
+                    var addedMaterial = dbContext.ProjectMaterials.FirstOrDefault(pm => pm.MaterialCode == material.Code && pm.ProjectId == viewModel.ProjectId);
+
+                    if (addedMaterial != null)
+                    {
+                        ChangeTrackingHelper.LogChanges<ProjectMaterial>(null, addedMaterial, EntityState.Added, "Material added to project", dbContext, User.Identity.Name);
+                    }
+                }
+
                 TempData["success"] = "Materials are added successfully";
                 // Update total material expense for the project after adding materials
                 UpdateTotalMaterialExpense(viewModel.ProjectId);

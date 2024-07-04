@@ -1,5 +1,6 @@
 ﻿using ConstructApp.Constants;
 using ConstructApp.Data;
+using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +46,6 @@ namespace ConstructApp.Controllers
             return View();
         }
         [HttpPost]
-
         public IActionResult Create(Material material)
         {
             try
@@ -63,21 +63,27 @@ namespace ConstructApp.Controllers
                         ModelState.AddModelError("MaterialUOM", "Invalid unit of measurement.");
                         return View(material);
                     }
+
+                    dbContext.Materials.Add(material);
+                    dbContext.SaveChanges();
+
+                    ChangeTrackingHelper.LogChanges(null, material, EntityState.Added, "Material created", dbContext, User.Identity.Name);
+
+                    TempData["success"] = "Material created successfully";
+                    return RedirectToAction("Index", "Material");
                 }
-                dbContext.Materials.Add(material);
-                dbContext.SaveChanges();
-                TempData["success"] = "Material created successfully";
-
-                return RedirectToAction("Index", "Material");
+                else
+                {
+                    return View(material);
+                }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-
                 TempData["error"] = $"An error occurred while creating the Project Material: {ex.Message}";
                 return View(material);
             }
-            
         }
+
 
         public IActionResult Edit(int id)
         {
@@ -93,6 +99,7 @@ namespace ConstructApp.Controllers
             }
             return View(material);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Material material)
@@ -103,7 +110,7 @@ namespace ConstructApp.Controllers
             }
             if (id != material.Id)
             {
-               return NotFound();
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -128,25 +135,36 @@ namespace ConstructApp.Controllers
                         }
                     }
 
+                    // Capture the state of the existing entity before any changes
+                    var originalMaterial = new Material
+                    {
+                        Id = existingMaterial.Id,
+                        Code = existingMaterial.Code,
+                        Name = existingMaterial.Name,
+                        Type = existingMaterial.Type,
+                        UnitOfMeasurement = existingMaterial.UnitOfMeasurement
+                    };
+
                     existingMaterial.Name = material.Name;
                     existingMaterial.Type = material.Type;
                     existingMaterial.UnitOfMeasurement = material.UnitOfMeasurement;
 
                     dbContext.SaveChanges();
+
+                    ChangeTrackingHelper.LogChanges(originalMaterial, material, EntityState.Modified, "Material updated", dbContext, User.Identity.Name);
+
                     TempData["success"] = "Material updated successfully";
-
                     return RedirectToAction("Index", "Material");
-
                 }
                 catch (Exception ex)
                 {
-
                     TempData["error"] = $"An error occurred while updating the Project Material: {ex.Message}";
                     return View(material);
                 }
             }
             return View(material);
         }
+
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -157,11 +175,25 @@ namespace ConstructApp.Controllers
                 return Json(new { success = false, message = "Material not found." });
             }
 
+            // Capture the state of the entity before deletion
+            //var originalMaterial = new Material
+            //{
+            //    Id = material.Id,
+            //    Code = material.Code,
+            //    Name = material.Name,
+            //    Type = material.Type,
+            //    UnitOfMeasurement = material.UnitOfMeasurement
+            //};
+
             dbContext.Materials.Remove(material);
             await dbContext.SaveChangesAsync();
 
+            // Log the deletion
+            //ChangeTrackingHelper.LogChanges(originalMaterial, null, EntityState.Deleted, "Material deleted", dbContext, User.Identity.Name);
+
             return Json(new { success = true, message = "Material deleted successfully." });
         }
+
 
 
     }
