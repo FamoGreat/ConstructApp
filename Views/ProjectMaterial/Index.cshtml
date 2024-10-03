@@ -7,10 +7,14 @@
     <div class="card-body">
         <div class="row mt-4">
             <div class="col-md-6 mb-2 mb-md-0">
-                <p>
-                    <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectMaterial">Add Material</a>
-                    <a class="btn btn-success" asp-action="SelectMaterials" asp-controller="ProjectMaterial">Choose From System</a>
-                </p>
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectMaterialPermissions.Create)).Result.Succeeded)
+                {
+                    <p>
+                        <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectMaterial">Add Material</a>
+                        <a class="btn btn-success" asp-action="SelectMaterials" asp-controller="ProjectMaterial">Choose From System</a>
+                    </p>
+                }
+           
             </div>
         </div>
         <div class="row">

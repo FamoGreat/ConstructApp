@@ -5,10 +5,13 @@
 }
 <partial name="_Notification" />
 
-
-                    <p>
-                       <a class="btn btn-primary" href="@Url.Action("Create", "Material")">Create Material</a>
-                    </p>
+@if ((AuthorizationService.AuthorizeAsync(User, Permissions.MaterialPermissions.Create)).Result.Succeeded)
+{
+    <p>
+        <a class="btn btn-primary" href="@Url.Action("Create", "Material")">Create Material</a>
+    </p>
+}
+                  
 
 <div class="card shadow mb-4">
 

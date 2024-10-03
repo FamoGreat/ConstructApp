@@ -6,9 +6,13 @@
     <div class="card-body">
         <div class="row mt-4">
             <div class="col-md-6 mb-2 mb-md-0">
-                <p>
-                    <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectTool">Add Tool/Equipment</a>
-                </p>
+                @if ((AuthorizationService.AuthorizeAsync(User, Permissions.ProjectToolPermissions.Create)).Result.Succeeded)
+                {
+                    <p>
+                        <a class="btn btn-primary" asp-action="Create" asp-controller="ProjectTool">Add Tool/Equipment</a>
+                    </p>
+                }
+           
             </div>
         </div>
         <div class="row">

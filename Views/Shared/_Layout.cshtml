@@ -62,16 +62,24 @@
             {
                 <li class="nav-item">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                   aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Project Management</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-action="Index" asp-controller="Project">Projects</a>
-                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectMaterial">Materials</a>
-                            <a class="collapse-item" asp-action="Index" asp-controller="ProjectTool">Tools/Equipments</a>
-
+                    aria-expanded="true" aria-controls="collapseTwo">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>Project Management</span>
+                    </a>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ProjectPermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="Index" asp-controller="Project">Projects</a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ProjectMaterialPermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="Index" asp-controller="ProjectMaterial">Materials</a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ProjectToolPermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="Index" asp-controller="ProjectTool">Tools/Equipments</a>
+                            }
                     </div>
                 </div>
             </li>
@@ -88,9 +96,18 @@
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                      data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-action="Index" asp-controller="Expense">My Request</a>
-                        <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
-                        <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpensePermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="Index" asp-controller="Expense">My Request</a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpensePermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpenseTypePermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
+                            }
                     </div>
                 </div>
             </li>
@@ -106,7 +123,10 @@
                 </a>
                 <div id="collapseApproval" class="collapse" aria-labelledby="headingApproval" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                            <a class="collapse-item" asp-action="PendingRequest" asp-controller="Approval">Pending Request</a>
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ApprovalPermissions.Approve).Result.Succeeded)
+                            {
+                                <a class="collapse-item" asp-action="PendingRequest" asp-controller="Approval">Pending Request</a>
+                            }
                         <a class="collapse-item" asp-action="ApprovedRequest" asp-controller="Approval">Approved Request</a>
 @*                             <a class="collapse-item" asp-action="RejectedRequest" asp-controller="Approval">Rejected Request</a>
  *@
@@ -115,19 +135,46 @@
             </li>
             }
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaterialTools"
-                   aria-expanded="true" aria-controls="collapseMaterialTools">
-                    <i class="fas fa-toolbox"></i>
-                    <span>Materials and Tools</span>
-                </a>
-                <div id="collapseMaterialTools" class="collapse" aria-labelledby="headingMaterialTools" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" id="materials" asp-action="Index" asp-controller="Material">Materials</a>
-                        <a class="collapse-item" id="tools" asp-action="Index" asp-controller="Tool">Tools</a>
+            @if (AuthorizationService.AuthorizeAsync(User, Permissions.MaterialPermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMaterialTools"
+                    aria-expanded="true" aria-controls="collapseMaterialTools">
+                        <i class="fas fa-toolbox"></i>
+                        <span>Materials and Tools</span>
+                    </a>
+                    <div id="collapseMaterialTools" class="collapse" aria-labelledby="headingMaterialTools" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.MaterialPermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" id="materials" asp-action="Index" asp-controller="Material">Materials</a>
+                            }
+                            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ToolPermissions.View).Result.Succeeded)
+                            {
+                                <a class="collapse-item" id="tools" asp-action="Index" asp-controller="Tool">Tools</a>
+                            }
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+            }
+            @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpensePermissions.View).Result.Succeeded)
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+                       aria-expanded="true" aria-controls="collapseReports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                    <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
+                            <!-- Add other report links here if needed -->
+                        </div>
+                    </div>
+                </li>
+            }
+
+           
 
             <!-- Nav Item - User Collapse Menu -->
             @if (AuthorizationService.AuthorizeAsync(User, Permissions.UserPermissions.View).Result.Succeeded)
@@ -152,6 +199,9 @@
                 </div>
             </li>
             }
+
+       
+
             <!-- Nav Item - Account Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccount"
@@ -173,20 +223,7 @@
 
             </li>
            
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
-                   aria-expanded="true" aria-controls="collapseReports">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Reports</span>
-                </a>
-                <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
-                        <!-- Add other report links here if needed -->
-                    </div>
-                </div>
-            </li>
-
+         
 
 
             <!-- Divider -->

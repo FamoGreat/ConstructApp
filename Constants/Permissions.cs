@@ -32,12 +32,22 @@ namespace ConstructApp.Constants
             public const string Delete = "Permissions.Expenses.Delete";
         }
 
+        public static class ExpenseTypePermissions
+        {
+            public const string View = "Permissions.ExpenseTypes.View";
+            public const string Create = "Permissions.ExpenseTypes.Create";
+            public const string Edit = "Permissions.ExpenseTypes.Edit";
+            public const string Delete = "Permissions.ExpenseTypes.Delete";
+        }
+
         public static class ApprovalPermissions
         {
             public const string View = "Permissions.Approvals.View";
             public const string Create = "Permissions.Approvals.Create";
             public const string Edit = "Permissions.Approvals.Edit";
             public const string Delete = "Permissions.Approvals.Delete";
+            public const string Approve = "Permissions.Approvals.Approve";
+
         }
         public static class ProjectPermissions
         {

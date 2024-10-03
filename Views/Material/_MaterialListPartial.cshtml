@@ -24,12 +24,22 @@
                                 <td>@material.UnitOfMeasurement</td>
                                 <td>
                                     <div class="d-flex justify-content-around">
-                                        <a asp-action="Edit" asp-route-id="@material.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button onclick="confirmDelete(@material.Id)" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+
+                                        @if ((AuthorizationService.AuthorizeAsync(User, Permissions.MaterialPermissions.Edit)).Result.Succeeded)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@material.Id" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        }
+
+                                        @if ((AuthorizationService.AuthorizeAsync(User, Permissions.MaterialPermissions.Delete)).Result.Succeeded)
+                                        {
+                                            <button onclick="confirmDelete(@material.Id)" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        }
+                                      
+                                      
                                     </div>
                                 </td>
                             </tr>

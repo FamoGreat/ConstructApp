@@ -4,6 +4,7 @@ using ConstructApp.Helpers;
 using ConstructApp.Models;
 using ConstructApp.Models.ViewModels;
 using ConstructApp.Services;
+using Glimpse.Core.Extensibility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -44,6 +45,24 @@ namespace ConstructApp.Controllers
             };
             return View(viewModel);
         }
+
+        [HttpGet]
+        public IActionResult GetTodayExpenses()
+        {
+            var today = DateTime.Today;
+            var todayExpenses = dbContext.Expenses
+                .Where(e => e.CreatedDate.Date == today)
+                .Sum(e => e.ExpenseAmount);
+
+            return Json(new { totalTodayExpenses = todayExpenses });
+        }
+        [HttpGet]
+        public IActionResult GetTotalExpenses()
+        {
+            var totalExpenses = dbContext.Expenses.Sum(e => e.ExpenseAmount);
+            return Json(new { totalExpenses = totalExpenses });
+        }
+
 
         public IActionResult ExpenseGraph()
         {
@@ -508,6 +527,45 @@ namespace ConstructApp.Controllers
                 return BadRequest("Failed to fetch count of pending expenses: " + ex.Message);
             }
         }
+
+        // GET: Expense/GetExpenseTypePercentages
+        [HttpGet("Expense/GetExpenseTypePercentages")]
+        public IActionResult GetExpenseTypePercentages()
+        {
+            var totalExpenses = dbContext.Expenses.Sum(e => e.ExpenseAmount);
+            if (totalExpenses == 0)
+            {
+                return Ok(new List<ExpensePercentageViewModel>());
+            }
+
+            var expensePercentages = dbContext.Expenses
+                .GroupBy(e => e.ExpenseType.Name)
+                .Select(group => new ExpensePercentageViewModel
+                {
+                    ExpenseTypeName = group.Key,
+                    Percentage = (group.Sum(e => e.ExpenseAmount) / totalExpenses) * 100
+                })
+                .ToList();
+
+            return Ok(expensePercentages);
+        }
+
+        //[HttpGet("Expense/GetMonthlyExpenseReport")]
+        //public IActionResult GetMonthlyExpenseReport()
+        //{
+        //    var monthlyExpenses = dbContext.Expenses
+        //        .GroupBy(e => new { e.CreatedDate.Year, e.CreatedDate.Month })
+        //        .Select(g => new
+        //        {
+        //            Month = g.Key.Month,
+        //            Year = g.Key.Year,
+        //            TotalExpense = g.Sum(e => e.ExpenseAmount)
+        //        })
+        //        .ToList();
+
+        //    return Ok(monthlyExpenses);
+        //}
+
 
         [HttpGet("Expense/ShowExpenseChart")]
         public async Task<IActionResult> ShowExpenseChart(int projectId, string chartType)

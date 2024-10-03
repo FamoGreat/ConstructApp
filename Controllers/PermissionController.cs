@@ -27,6 +27,7 @@ namespace ConstructApp.Controllers
                 var allPermissions = new List<RoleClaimsVM>();
                 allPermissions.GetPermissions(typeof(Constants.Permissions.UserPermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ExpensePermissions), roleId);
+                allPermissions.GetPermissions(typeof(Constants.Permissions.ExpenseTypePermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ApprovalPermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectPermissions), roleId);
                 allPermissions.GetPermissions(typeof(Constants.Permissions.ProjectMaterialPermissions), roleId);
