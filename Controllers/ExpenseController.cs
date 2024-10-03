@@ -536,6 +536,8 @@ namespace ConstructApp.Controllers
                 }
 
                 DateTime startDate;
+                DateTime endDate = DateTime.Today;
+
                 switch (chartType)
                 {
                     case "daily":
@@ -545,18 +547,32 @@ namespace ConstructApp.Controllers
                         startDate = DateTime.Today.AddDays(-7);
                         break;
                     case "monthly":
-                        startDate = DateTime.Today.AddMonths(-1);
+                        startDate = DateTime.Today.AddMonths(-12);
                         break;
                     default:
                         throw new ArgumentException("Invalid chart type.");
                 }
 
-                var expenses = await dbContext.Expenses
-                    .Where(e => e.ProjectId == projectId && e.CreatedDate >= startDate && e.ApprovalStatus == ApprovalStatus.Approved)
+                // Fetch the raw expenses data
+                var rawExpenses = await dbContext.Expenses
+                    .Where(e => e.ProjectId == projectId
+                                && e.CreatedDate >= startDate
+                                && e.CreatedDate <= endDate
+                                && e.ApprovalStatus == ApprovalStatus.Approved)
                     .Include(e => e.ExpenseType)
-                    .GroupBy(e => e.ExpenseType.Name)
-                    .Select(g => new { ExpenseType = g.Key, Total = g.Sum(e => e.ExpenseAmount) })
-                    .ToDictionaryAsync(g => g.ExpenseType, g => g.Total);
+                    .ToListAsync();
+
+                // Explicitly specifying the types for GroupBy (group by string for monthly, date for daily/weekly)
+                var expenses = rawExpenses
+                    .GroupBy(e => chartType == "monthly"
+                                  ? e.CreatedDate.ToString("MMMM yyyy")  // Group by month and year for monthly reports
+                                  : e.CreatedDate.Date.ToShortDateString()) // Group by the exact date for daily/weekly reports
+                    .Select(g => new
+                    {
+                        DateGroup = g.Key,
+                        Total = g.Sum(e => e.ExpenseAmount)
+                    })
+                    .ToDictionary(g => g.DateGroup, g => g.Total);
 
                 return View("ExpenseChart", expenses);
             }
@@ -565,6 +581,137 @@ namespace ConstructApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+
+        //[HttpGet("Expense/ShowExpenseChart")]
+        //public async Task<IActionResult> ShowExpenseChart(int projectId, string chartType)
+        //{
+        //    try
+        //    {
+        //        var project = await dbContext.Projects.FindAsync(projectId);
+        //        if (project == null)
+        //        {
+        //            return NotFound($"Project with ID {projectId} not found.");
+        //        }
+
+        //        ViewBag.ChartType = chartType switch
+        //        {
+        //            "daily" => "Daily",
+        //            "weekly" => "Weekly",
+        //            "monthly" => "Monthly",
+        //            _ => throw new ArgumentException("Invalid chart type.")
+        //        };
+
+        //        DateTime startDate;
+        //        switch (chartType)
+        //        {
+        //            case "daily":
+        //                startDate = DateTime.Today.AddDays(-1);  // Last day
+        //                break;
+        //            case "weekly":
+        //                startDate = DateTime.Today.AddDays(-7);  // Last 7 days
+        //                break;
+        //            case "monthly":
+        //                startDate = DateTime.Today.AddMonths(-1);  // Last month
+        //                break;
+        //            default:
+        //                throw new ArgumentException("Invalid chart type.");
+        //        }
+
+        //        // Fetch expenses and group them by the appropriate time range
+        //        var expensesQuery = dbContext.Expenses
+        //            .Where(e => e.ProjectId == projectId && e.CreatedDate >= startDate && e.ApprovalStatus == ApprovalStatus.Approved)
+        //            .Include(e => e.ExpenseType);
+
+        //        // Grouping and selecting the correct data based on chartType
+        //        var expenses = chartType switch
+        //        {
+        //            "daily" => await expensesQuery
+        //                .GroupBy(e => e.CreatedDate.Date)  // Group by exact date
+        //                .Select(g => new { Date = g.Key.ToString("dd/MM/yyyy"), Total = g.Sum(e => e.ExpenseAmount) })
+        //                .ToDictionaryAsync(g => g.Date, g => g.Total),
+
+        //            "weekly" => await expensesQuery
+        //                .GroupBy(e => e.CreatedDate.Date)  // Group by exact date
+        //                .Select(g => new { Date = g.Key.ToString("dd/MM/yyyy"), Total = g.Sum(e => e.ExpenseAmount) })
+        //                .ToDictionaryAsync(g => g.Date, g => g.Total),
+
+        //            "monthly" => await expensesQuery
+        //               .GroupBy(e => new { e.CreatedDate.Year, e.CreatedDate.Month })
+        //                .Select(g => new {
+        //                    Date = $"{g.Key.Month}/{g.Key.Year}",
+        //                    Total = g.Sum(e => e.ExpenseAmount)
+        //                })
+        //                .ToDictionaryAsync(g => g.Date, g => g.Total),
+
+        //            _ => throw new ArgumentException("Invalid chart type.")
+        //        };
+
+        //        return View("ExpenseChart", expenses);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
+
+
+        //[HttpGet("Expense/ShowExpenseChart")]
+        //public async Task<IActionResult> ShowExpenseChart(int projectId, string chartType)
+        //{
+        //    try
+        //    {
+        //        var project = await dbContext.Projects.FindAsync(projectId);
+        //        if (project == null)
+        //        {
+        //            return NotFound($"Project with ID {projectId} not found.");
+        //        }
+
+        //        switch (chartType)
+        //        {
+        //            case "daily":
+        //                ViewBag.ChartType = "Daily";
+        //                break;
+        //            case "weekly":
+        //                ViewBag.ChartType = "Weekly";
+        //                break;
+        //            case "monthly":
+        //                ViewBag.ChartType = "Monthly";
+        //                break;
+        //            default:
+        //                throw new ArgumentException("Invalid chart type.");
+        //        }
+
+        //        DateTime startDate;
+        //        switch (chartType)
+        //        {
+        //            case "daily":
+        //                startDate = DateTime.Today.AddDays(-1);
+        //                break;
+        //            case "weekly":
+        //                startDate = DateTime.Today.AddDays(-7);
+        //                break;
+        //            case "monthly":
+        //                startDate = DateTime.Today.AddMonths(-1);
+        //                break;
+        //            default:
+        //                throw new ArgumentException("Invalid chart type.");
+        //        }
+
+        //        var expenses = await dbContext.Expenses
+        //            .Where(e => e.ProjectId == projectId && e.CreatedDate >= startDate && e.ApprovalStatus == ApprovalStatus.Approved)
+        //            .Include(e => e.ExpenseType)
+        //            .GroupBy(e => e.ExpenseType.Name)
+        //            .Select(g => new { ExpenseType = g.Key, Total = g.Sum(e => e.ExpenseAmount) })
+        //            .ToDictionaryAsync(g => g.ExpenseType, g => g.Total);
+
+        //        return View("ExpenseChart", expenses);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
 
 
     }

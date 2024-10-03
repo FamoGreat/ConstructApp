@@ -1,11 +1,9 @@
-﻿
-
-@model Dictionary<string, decimal>
+﻿@model Dictionary<string, decimal>
 
 @{
     ViewData["Title"] = $"{ViewBag.ChartType} Expense Chart";
-    var chartLabels = Model.Keys.ToList();
-    var chartData = Model.Values.ToList();
+    var chartLabels = Model.Keys.ToList();  // Dates as labels
+    var chartData = Model.Values.ToList();  // Expense values
 }
 
 <div class="card shadow mb-4">
@@ -36,7 +34,7 @@
                 };
             s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
             if (s[0].length > 3) {
-                s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, sep);
             }
             if ((s[1] || '').length < prec) {
                 s[1] = s[1] || '';
@@ -46,22 +44,22 @@
         }
 
         // Get chart data from Razor model
-        var chartLabels = @Html.Raw(Json.Serialize(chartLabels));
-        var chartData = @Html.Raw(Json.Serialize(chartData));
+        var chartLabels = @Html.Raw(Json.Serialize(chartLabels));  // X-axis (Dates)
+        var chartData = @Html.Raw(Json.Serialize(chartData));  // Y-axis (Expense amounts)
 
         // Bar Chart Configuration
         var ctx = document.getElementById("myBarChart").getContext('2d');
         var myBarChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: chartLabels,
+                labels: chartLabels,  // Dates (either daily, weekly, or monthly)
                 datasets: [{
                     label: 'Expense',
                     backgroundColor: '#4e73df',
                     hoverBackgroundColor: '#2e59d9',
                     borderColor: '#4e73df',
                     borderWidth: 1,
-                    data: chartData
+                    data: chartData  // Corresponding expense data for each date
                 }]
             },
             options: {
@@ -78,10 +76,23 @@
                     }
                 },
                 scales: {
+                    xAxes: [{
+                        time: {
+                            unit: 'date'  // This could adjust based on daily, weekly, or monthly
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            autoSkip: false,  // Show all dates on the x-axis
+                            maxRotation: 45,  // Rotate labels for better readability
+                            minRotation: 0
+                        }
+                    }],
                     yAxes: [{
                         ticks: {
                             callback: function (value) {
-                                return 'TZS ' + value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                                return 'TZS ' + number_format(value);
                             }
                         },
                         gridLines: {
@@ -94,5 +105,6 @@
                     }]
                 }
             }
-        });</script>
+        });
+    </script>
 }

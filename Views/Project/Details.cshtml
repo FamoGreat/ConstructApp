@@ -1,6 +1,5 @@
 ﻿@model Project
 
-@* Include partial for notifications if needed *@
 <partial name="_Notification" />
 
 <div class="card shadow mb-4">
@@ -109,5 +108,10 @@
 </div>
 
 <div class="m-4">
-    <a href="@Url.Action("Index", "Project")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+    <a href="@Url.Action("DownloadPdf", "Project", new { projectId = Model.Id })" class="btn btn-primary">
+        <i class="fas fa-file-pdf"></i> Download PDF
+    </a>
+    <a href="@Url.Action("Index", "Project")" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
 </div>

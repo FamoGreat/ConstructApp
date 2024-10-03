@@ -53,6 +53,7 @@
   <ItemGroup>
     <PackageReference Include="Abp.MailKit" Version="9.2.2" />
     <PackageReference Include="DinkToPdf" Version="1.0.8" />
+    <PackageReference Include="Glimpse.Mvc5" Version="1.5.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />

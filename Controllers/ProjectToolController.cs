@@ -80,13 +80,13 @@ namespace ConstructApp.Controllers
                     ChangeTrackingHelper.LogChanges<ProjectTool>(null, projectTool, EntityState.Added, "Project Tool created", dbContext, User.Identity.Name);
 
                     UpdateTotalToolExpense(projectTool.ProjectId);
-                    return RedirectToAction("Index", "Project");
+                    return RedirectToAction("Index", "ProjectTool");
                 }
                 return View(projectTool);
             }
             catch (Exception ex)
             {
-                TempData["error"] = $"An error occurred while creating the Project Material: {ex.Message}";
+                TempData["error"] = $"An error occurred while creating the Project Tool: {ex.Message}";
                 return View(projectTool);
             }
         }

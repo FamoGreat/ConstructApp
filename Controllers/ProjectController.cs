@@ -15,6 +15,11 @@ using Microsoft.Build.ObjectModelRemoting;
 using ConstructApp.Helpers;
 using ConstructApp.Models.ViewModels;
 using System.Security.Claims;
+using DinkToPdf;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 
 namespace ConstructApp.Controllers
 {
@@ -24,12 +29,16 @@ namespace ConstructApp.Controllers
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IConverter _converter;
+        private readonly ICompositeViewEngine _viewEngine;
 
-        public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager, IAuthorizationService authorizationService)
+        public ProjectController(ApplicationDbContext _dbContext, UserManager<ApplicationUser> userManager, IAuthorizationService authorizationService, IConverter converter, ICompositeViewEngine viewEngine)
         {
             dbContext = _dbContext;
             _userManager = userManager;
             _authorizationService = authorizationService;
+            _converter = converter;
+            _viewEngine = viewEngine;
         }
 
         public async Task<IActionResult> Index()
@@ -241,6 +250,63 @@ namespace ConstructApp.Controllers
             }
         }
 
+
+        [HttpGet("Project/DownloadPdf/{projectId}")]
+        public IActionResult DownloadPdf(int projectId)
+        {
+            var project = GetProjectById(projectId);
+
+            var htmlContent = RenderViewToString("ProjectPdfTemplate", project);
+
+            // Set up PDF generation settings
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.A4,
+            },
+                Objects = {
+                new ObjectSettings()
+                {
+                     PagesCount = true,
+                    HtmlContent = htmlContent,
+                    FooterSettings = { Right = "[page] of [toPage]", FontSize = 9 }
+                }
+            }
+            };
+
+            // Convert the HTML to PDF
+            byte[] pdf = _converter.Convert(doc);
+
+            // Return the PDF as a file download
+            return File(pdf, "application/pdf", $"Project_{projectId}.pdf");
+        }
+
+        // Helper method to render view to string
+        private string RenderViewToString(string viewName, object model)
+        {
+            ViewData.Model = model;
+            using (var sw = new StringWriter())
+            {
+                var viewResult = _viewEngine.FindView(ControllerContext, viewName, false);
+                var viewContext = new ViewContext(
+                    ControllerContext,
+                    viewResult.View,
+                    ViewData,
+                    TempData,
+                    sw,
+                    new HtmlHelperOptions()
+                );
+                viewResult.View.RenderAsync(viewContext).Wait();
+                return sw.GetStringBuilder().ToString();
+            }
+        }
+
+        private Project GetProjectById(int projectId)
+        {
+            return dbContext.Projects.Include(p => p.ProjectMaterials).Include(p => p.ProjectTools).FirstOrDefault(p => p.Id == projectId);
+        }
 
         private void UpdateTotalExpenses(int projectId)
         {

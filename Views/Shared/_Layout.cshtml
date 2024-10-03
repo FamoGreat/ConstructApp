@@ -75,7 +75,7 @@
                     </div>
                 </div>
             </li>
-            }
+           }
             <!-- Nav Item - expense Collapse Menu -->
              @if (AuthorizationService.AuthorizeAsync(User, Permissions.ExpensePermissions.View).Result.Succeeded)
             {
@@ -90,8 +90,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" asp-action="Index" asp-controller="Expense">My Request</a>
                         <a class="collapse-item" asp-action="AllRequests" asp-controller="Expense">All Requests</a>
-@*                             <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
- *@                        <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
+                        <a class="collapse-item" asp-action="Index" asp-controller="ExpenseType">Expense Type</a>
                     </div>
                 </div>
             </li>
@@ -170,10 +169,23 @@
                     </div>
 
                 </div>
-
+               
 
             </li>
            
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+                   aria-expanded="true" aria-controls="collapseReports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+                <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" asp-action="ExpenseGraph" asp-controller="Expense">Expense Graphs</a>
+                        <!-- Add other report links here if needed -->
+                    </div>
+                </div>
+            </li>
 
 
 

@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h1, h2 {
+            color: #4e73df;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 30px;
+        }
+
+        .project-info {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f1f5fb;
+        }
+
+        .project-info p {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .project-info p strong {
+            color: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-row-group;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4e73df;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 100px;
+            page-break-before: always;
+        }
+
+        td {
+            background-color: #f9fbfd;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #eef2f7;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Report</h1>
+        <h2>@Model.ProjectName</h2>
+
+        <div class="project-info">
+            <p><strong>Location:</strong> @Model.Location</p>
+            <p><strong>Start Date:</strong> @Model.StartDate.ToShortDateString()</p>
+            <p><strong>End Date:</strong> @Model.EndDate.ToShortDateString()</p>
+            <p><strong>Created By:</strong> @Model.CreatedBy</p>
+            <p><strong>Total Budget:</strong> @Model.TotalBudget</p>
+            <p><strong>Description:</strong> @Model.ProjectDescription</p>
+        </div>
+
+        <!-- Single section title for Materials -->
+        <div class="section-title">Materials</div>
+        <table style="margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Material Code</th>
+                    <th>Material Name</th>
+                    <th>Material Description</th>
+                    <th>Estimated Quantity</th>
+                    <th>Estimated Cost</th>
+                    <th>Unit of Measurement</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.ProjectMaterials.Count; i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@Model.ProjectMaterials[i].MaterialCode</td>
+                        <td>@Model.ProjectMaterials[i].MaterialName</td>
+                        <td>@Model.ProjectMaterials[i].MaterialDescription</td>
+                        <td>@Model.ProjectMaterials[i].EstimatedQuantity</td>
+                        <td>@Model.ProjectMaterials[i].EstimatedCost</td>
+                        <td>@Model.ProjectMaterials[i].MaterialUOM</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Single section title for Tools -->
+        <div class="section-title">Tools</div>
+        <table style="margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tool Name</th>
+                    <th>Tool Description</th>
+                    <th>Quantity</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.ProjectTools.Count; i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@Model.ProjectTools[i].ToolName</td>
+                        <td>@Model.ProjectTools[i].ToolDescription</td>
+                        <td>@Model.ProjectTools[i].ToolsQuantity</td>
+                        <td>@Model.ProjectTools[i].ToolCost</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Generated on @DateTime.Now.ToString("dd MMMM yyyy")
+        </div>
+    </div>
+</body>
+</html>
